@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Sanzin K-Store</string>
+    <string name="cart_text">Cart</string>
+    <string name="add_product_content_description">Add Product</string>
+    <string name="select_payment_method">Select Payment Method</string>
+    <string name="pay_on_pickup">Pay on Pickup</string>
+    <string name="pay_online_gcash">Pay Online (GCash)</string>
+    <string name="order_placed_successfully">Order placed successfully!</string>
+    <string name="failed_to_place_order">Failed to place order: %1$s</string>
+    <string name="cart_empty">Your cart is empty!</string>
+    <string name="proceeding_to_checkout">Proceeding to checkout for ₱%1$.2f</string>
+    <string name="default_web_client_id" translatable="false">902665820500-mevo35t2jh2nc7g5u7p4ra96tcftrr1l.apps.googleusercontent.com</string>
+</resources>

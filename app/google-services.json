@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "902665820500",
+    "project_id": "sanzinkstore-1184b",
+    "storage_bucket": "sanzinkstore-1184b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902665820500:android:d4e75acc27b9c1ad2390c1",
+        "android_client_info": {
+          "package_name": "com.example.sanzinkstore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "902665820500-7vo82dqrekcnni0so8mumd7bjgod4rvv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sanzinkstore",
+            "certificate_hash": "5ace9fedffa088feabeaa3a0b89b0f7edd4499ab"
+          }
+        },
+        {
+          "client_id": "902665820500-mevo35t2jh2nc7g5u7p4ra96tcftrr1l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0272_TMNP0PtUo6L9Ey-Psr7LbT_tc8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "902665820500-mevo35t2jh2nc7g5u7p4ra96tcftrr1l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
