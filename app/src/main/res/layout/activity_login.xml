@@ -4,19 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/background">
+    android:background="@color/black">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:padding="32dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/logo"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="32dp"
-            android:src="@mipmap/ic_launcher_round"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_marginTop="48dp"
+            android:padding="4dp"
+            android:src="@drawable/logo2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -26,9 +27,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Sanzin K-Store"
+            android:text="@string/login_title"
             android:textAppearance="?attr/textAppearanceHeadlineMedium"
-            android:textColor="@color/primary"
+            android:textColor="@color/white"
+            android:letterSpacing="0.1"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,21 +41,23 @@
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:padding="12dp"
-            android:text="Sign in with Google"
-            app:icon="@android:drawable/ic_menu_myplaces"
+            android:layout_marginTop="48dp"
+            android:padding="16dp"
+            android:text="@string/customer_login_button"
+            android:textColor="@color/black"
+            app:backgroundTint="@color/neon_pink"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
-            app:layout_constraintWidth_max="400dp" />
+            app:layout_constraintWidth_max="400dp"
+            app:cornerRadius="8dp" />
 
         <View
             android:id="@+id/divider"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginTop="24dp"
-            android:background="#E0E0E0"
+            android:layout_marginTop="40dp"
+            android:background="#333333"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/googleSignInButton" />
@@ -62,10 +66,11 @@
             android:id="@+id/adminLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Admin Access"
+            android:layout_marginTop="32dp"
+            android:text="@string/seller_access"
             android:textAppearance="?attr/textAppearanceLabelLarge"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/neon_pink"
+            android:letterSpacing="0.05"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider" />
@@ -76,7 +81,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Admin Email"
+            android:hint="@string/seller_email_hint"
+            app:hintTextColor="@color/neon_pink"
+            app:boxStrokeColor="@color/neon_pink"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/adminLabel"
@@ -86,6 +93,7 @@
                 android:id="@+id/adminEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -94,9 +102,12 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="Password"
+            android:layout_marginTop="12dp"
+            android:hint="@string/seller_password_hint"
+            app:hintTextColor="@color/neon_pink"
+            app:boxStrokeColor="@color/neon_pink"
             app:endIconMode="password_toggle"
+            app:endIconTint="@color/neon_pink"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/adminEmailLayout"
@@ -106,6 +117,7 @@
                 android:id="@+id/adminPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
                 android:inputType="textPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,16 +125,19 @@
             android:id="@+id/adminLoginButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:layout_marginBottom="32dp"
-            android:padding="12dp"
-            android:text="Login as Admin"
+            android:padding="16dp"
+            android:text="@string/seller_login_button"
+            android:textColor="@color/black"
+            app:backgroundTint="@color/neon_pink"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/adminPasswordLayout"
             app:layout_constraintVertical_bias="0.0"
-            app:layout_constraintWidth_max="400dp" />
+            app:layout_constraintWidth_max="400dp"
+            app:cornerRadius="8dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

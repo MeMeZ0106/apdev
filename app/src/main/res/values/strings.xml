@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Sanzin K-Store</string>
-    <string name="cart_text">Cart</string>
+    <string name="app_name">SanZin K-Store</string>
+    <string name="cart_text">CART</string>
     <string name="add_product_content_description">Add Product</string>
     <string name="select_payment_method">Select Payment Method</string>
     <string name="pay_on_pickup">Pay on Pickup</string>
@@ -10,4 +10,28 @@
     <string name="cart_empty">Your cart is empty!</string>
     <string name="proceeding_to_checkout">Proceeding to checkout for ₱%1$.2f</string>
     <string name="default_web_client_id" translatable="false">902665820500-mevo35t2jh2nc7g5u7p4ra96tcftrr1l.apps.googleusercontent.com</string>
+
+    <string name="login_title">SanZin K-Store</string>
+    <string name="login_continue_google">CONTINUE WITH GOOGLE</string>
+    <string name="seller_access">Seller Portal</string>
+    <string name="seller_email_hint">Seller Email</string>
+    <string name="seller_password_hint">Password</string>
+    <string name="seller_login_button">LOGIN AS SELLER</string>
+    <string name="customer_login_button">CONTINUE AS CUSTOMER</string>
+
+    <string name="inventory_title">Store Inventory</string>
+    <string name="update_inventory">UPDATE INVENTORY</string>
+    <string name="no_image_preview">No Image Preview</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="image_url_hint">Image URL (Optional)</string>
+    <string name="available_inventory">Available in Stock</string>
+    <string name="remove_product">REMOVE FROM STORE</string>
+    <string name="product_name_hint">Product Name</string>
+    <string name="description_hint">Description</string>
+    <string name="price_hint">Price (₱)</string>
+    <string name="category_hint">Category</string>
+
+    <string name="cancel_order">CANCEL ORDER</string>
+    <string name="checkout">CHECK OUT</string>
+    <string name="total_amount">TOTAL: ₱%1$.2f</string>
 </resources>

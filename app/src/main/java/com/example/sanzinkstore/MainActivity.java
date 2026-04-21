@@ -21,8 +21,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.example.sanzinkstore.api.PayMongoService;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import com.example.sanzinkstore.adapter.CartAdapter;
 import com.example.sanzinkstore.databinding.ActivityMainBinding;
 import com.example.sanzinkstore.model.CartItem;
 import com.example.sanzinkstore.model.Order;
@@ -30,7 +36,7 @@ import com.example.sanzinkstore.model.Product;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -64,14 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Replace with your actual PayMongo Public Key
     private static final String PAYMONGO_PUBLIC_KEY = "pk_test_your_key_here";
-
-    private final String[] categories = {"Food", "Drinks", "Snacks", "Deals"};
-    private final int[] categoryIcons = {
-            R.drawable.ic_food,
-            R.drawable.ic_drinks,
-            R.drawable.ic_snacks,
-            R.drawable.ic_deals
-    };
 
     private final ActivityResultLauncher<String> createDocumentLauncher = registerForActivityResult(
             new ActivityResultContracts.CreateDocument("text/csv"),
@@ -165,17 +163,48 @@ public class MainActivity extends AppCompatActivity {
     private void setupUI() {
         if (isAdmin) {
             binding.fabCart.setVisibility(View.GONE);
-            binding.fabAddProduct.setVisibility(View.VISIBLE);
-            binding.fabAddProduct.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, AdminProductActivity.class);
-                startActivity(intent);
+            binding.fabAddProduct.setVisibility(View.GONE); // Controlled via Drawer/Inventory
+            binding.bottomPanel.setVisibility(View.VISIBLE);
+            binding.toolbar.setTitle(getString(R.string.seller_access));
+            
+            // Setup Drawer Toggle
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, binding.drawerLayout, binding.toolbar,
+                    R.string.app_name, R.string.app_name);
+            binding.drawerLayout.addDrawerListener(toggle);
+            toggle.syncState();
+            
+            binding.navigationView.setNavigationItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.nav_logout) logout();
+                // Add other navigation handling here
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
             });
-            binding.toolbar.setTitle("Sanzin K-Store (Admin)");
+
+            binding.btnCancel.setOnClickListener(v -> {
+                cart.clear();
+                updateCartTotal();
+            });
+
+            binding.btnEditCart.setOnClickListener(v -> showEditCartDialog());
+            
+            binding.btnAccept.setOnClickListener(v -> {
+                if (!cart.isEmpty()) {
+                    processOrder("CASH_POS", true, null);
+                }
+            });
+
         } else {
             binding.fabCart.setVisibility(View.VISIBLE);
             binding.fabAddProduct.setVisibility(View.GONE);
+            binding.bottomPanel.setVisibility(View.GONE);
             binding.fabCart.setOnClickListener(v -> handleCheckout());
-            binding.toolbar.setTitle("Sanzin K-Store");
+            binding.toolbar.setTitle(getString(R.string.app_name));
+            
+            // Hide menu icon for customer if drawer not needed
+            binding.toolbar.setNavigationIcon(null);
+            
             updateCartTotal();
         }
     }
@@ -469,21 +498,16 @@ public class MainActivity extends AppCompatActivity {
             @NonNull
             @Override
             public Fragment createFragment(int position) {
-                return ProductListFragment.newInstance(categories[position], isAdmin);
+                return ProductListFragment.newInstance("All", isAdmin);
             }
 
             @Override
             public int getItemCount() {
-                return categories.length;
+                return 1;
             }
         };
 
         binding.viewPager.setAdapter(adapter);
-
-        new TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> {
-            tab.setText(categories[position]);
-            tab.setIcon(categoryIcons[position]);
-        }).attach();
     }
 
     public void addToCart(Product product) {
@@ -491,10 +515,12 @@ public class MainActivity extends AppCompatActivity {
             if (item.getProduct().getId().equals(product.getId())) {
                 item.setQuantity(item.getQuantity() + 1);
                 updateCartTotal();
+                if (isAdmin) binding.lastAddedValue.setText(product.getName());
                 return;
             }
         }
         cart.add(new CartItem(product, 1));
+        if (isAdmin) binding.lastAddedValue.setText(product.getName());
         updateCartTotal();
     }
 
@@ -505,8 +531,51 @@ public class MainActivity extends AppCompatActivity {
             totalAmount += item.getTotalPrice();
             totalItems += item.getQuantity();
         }
-        // Use clean text without % symbols to fix button display
-        String cartText = "Cart (" + totalItems + ") - PHP " + String.format(Locale.getDefault(), "%.2f", totalAmount);
-        binding.fabCart.setText(cartText);
+        
+        if (isAdmin) {
+            binding.itemsCountValue.setText(String.valueOf(totalItems));
+            binding.totalValue.setText(String.format(Locale.getDefault(), "%.2f", totalAmount));
+            if (cart.isEmpty()) binding.lastAddedValue.setText("None");
+        } else {
+            String cartText = "Cart (" + totalItems + ") - PHP " + String.format(Locale.getDefault(), "%.2f", totalAmount);
+            binding.fabCart.setText(cartText);
+        }
+    }
+
+    private void showEditCartDialog() {
+        if (cart.isEmpty()) {
+            Toast.makeText(this, "Cart is empty!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_cart, null);
+        RecyclerView rv = dialogView.findViewById(R.id.rvEditCart);
+        rv.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+        
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Edit Cart")
+                .setView(dialogView)
+                .setPositiveButton("Done", null)
+                .create();
+
+        CartAdapter cartAdapter = new CartAdapter(cart, new CartAdapter.OnCartChangeListener() {
+            @Override
+            public void onQuantityChanged(int position, int newQuantity) {
+                cart.get(position).setQuantity(newQuantity);
+                updateCartTotal();
+                rv.getAdapter().notifyItemChanged(position);
+            }
+
+            @Override
+            public void onItemRemoved(int position) {
+                cart.remove(position);
+                updateCartTotal();
+                rv.getAdapter().notifyItemRemoved(position);
+                if (cart.isEmpty()) dialog.dismiss();
+            }
+        });
+
+        rv.setAdapter(cartAdapter);
+        dialog.show();
     }
 }

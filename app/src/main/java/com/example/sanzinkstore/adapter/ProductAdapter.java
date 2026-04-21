@@ -1,11 +1,13 @@
 package com.example.sanzinkstore.adapter;
 
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.sanzinkstore.R;
 import com.example.sanzinkstore.databinding.ItemProductBinding;
@@ -56,38 +58,43 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         public void bind(Product product, boolean isAdmin, OnProductClickListener listener) {
             binding.productName.setText(product.getName());
-            binding.productDescription.setText(product.getDescription());
             binding.productPrice.setText(String.format("₱%.2f", product.getPrice()));
             
-            if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-                Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.ic_food).into(binding.productImage);
-            }
-
-            if (product.isAvailable()) {
-                binding.availabilityBadge.setText("Available");
-                binding.availabilityBadge.setBackgroundResource(R.drawable.bg_badge_available);
-                binding.addToCartButton.setEnabled(true);
-                binding.addToCartButton.setText("Order Ahead");
-                binding.productImage.setColorFilter(null);
-                binding.productImage.setAlpha(1.0f);
-            } else {
-                binding.availabilityBadge.setText("Sold Out");
-                binding.availabilityBadge.setBackgroundResource(R.drawable.bg_badge_unavailable);
-                binding.addToCartButton.setEnabled(false);
-                binding.addToCartButton.setText("Sold Out");
-                
-                ColorMatrix matrix = new ColorMatrix();
-                matrix.setSaturation(0);
-                binding.productImage.setColorFilter(new ColorMatrixColorFilter(matrix));
-                binding.productImage.setAlpha(0.6f);
-            }
-
             if (isAdmin) {
-                // Admin Mode: Hide order button, allow editing on card click
+                // Seller View: Hide images, show category-coded backgrounds
+                binding.productImage.setVisibility(View.GONE);
+                int bgColor = getCategoryColor(product.getCategory());
+                binding.getRoot().setCardBackgroundColor(bgColor);
+                
+                // Set text colors to black for readability on light backgrounds
+                binding.productName.setTextColor(Color.BLACK);
+                binding.productPrice.setTextColor(Color.DKGRAY);
+                
                 binding.addToCartButton.setVisibility(View.GONE);
                 binding.getRoot().setOnClickListener(v -> listener.onProductClick(product));
             } else {
-                // Customer Mode: Show order button, clicking card or button adds to cart
+                // Customer View: Show images, standard branding
+                binding.productImage.setVisibility(View.VISIBLE);
+                binding.getRoot().setCardBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
+                binding.productName.setTextColor(Color.WHITE);
+                binding.productPrice.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.neon_pink));
+
+                if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+                    Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.ic_food).into(binding.productImage);
+                }
+
+                if (product.isAvailable()) {
+                    binding.addToCartButton.setEnabled(true);
+                    binding.productImage.setColorFilter(null);
+                    binding.productImage.setAlpha(1.0f);
+                } else {
+                    binding.addToCartButton.setEnabled(false);
+                    ColorMatrix matrix = new ColorMatrix();
+                    matrix.setSaturation(0);
+                    binding.productImage.setColorFilter(new ColorMatrixColorFilter(matrix));
+                    binding.productImage.setAlpha(0.6f);
+                }
+
                 binding.addToCartButton.setVisibility(View.VISIBLE);
                 binding.getRoot().setOnClickListener(v -> {
                     if (product.isAvailable()) {
@@ -95,6 +102,27 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     }
                 });
                 binding.addToCartButton.setOnClickListener(v -> listener.onProductClick(product));
+            }
+        }
+
+        private int getCategoryColor(String category) {
+            if (category == null) return ContextCompat.getColor(itemView.getContext(), R.color.cat_default);
+            
+            switch (category.toLowerCase()) {
+                case "milktea":
+                case "milk tea":
+                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_milktea);
+                case "fruit soda":
+                case "soda":
+                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_fruit_soda);
+                case "food":
+                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_food);
+                case "snacks":
+                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_snacks);
+                case "deals":
+                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_deals);
+                default:
+                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_default);
             }
         }
     }
