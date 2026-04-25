@@ -70,13 +70,18 @@ public class ProductListFragment extends Fragment {
         categoryChipGroup = view.findViewById(R.id.categoryChipGroup);
 
         int spanCount = isAdmin ? 3 : 2; // Seller gets more density, Customer gets Kiosk style
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), spanCount));
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), spanCount);
+        recyclerView.setLayoutManager(layoutManager);
         
         adapter = new ProductAdapter(productList, isAdmin, product -> {
             if (isAdmin) {
-                Intent intent = new Intent(getContext(), AdminProductActivity.class);
-                intent.putExtra("PRODUCT_ID", product.getId());
-                startActivity(intent);
+                // If it's a seller, we want to add to cart, not necessarily edit product
+                // But the user mentioned "Inventory should allow adding/editing"
+                // Let's make it so clicking in the Main grid adds to cart,
+                // and clicking in the Inventory activity edits.
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).addToCart(product);
+                }
             } else {
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity) getActivity()).addToCart(product);
@@ -145,22 +150,6 @@ public class ProductListFragment extends Fragment {
     private void loadProducts() {
         Log.d(TAG, "Loading products");
         
-        // Add Dummy Data for Visualization
-        if (allProducts.isEmpty()) {
-            allProducts.add(new Product("1", "Milktea Classic", "Sweet milktea", 85.0, "", "Milktea", true));
-            allProducts.add(new Product("2", "Okinawa", "Brown sugar milktea", 95.0, "", "Milktea", true));
-            allProducts.add(new Product("3", "Wintermelon", "Refreshing milktea", 90.0, "", "Milktea", true));
-            allProducts.add(new Product("4", "Blueberry Soda", "Fizzy drink", 65.0, "", "Fruit Soda", true));
-            allProducts.add(new Product("5", "Strawberry Soda", "Berry flavor", 65.0, "", "Fruit Soda", true));
-            allProducts.add(new Product("6", "Green Apple Soda", "Tart and sweet", 65.0, "", "Fruit Soda", true));
-            allProducts.add(new Product("7", "Fries", "Crispy potato", 45.0, "", "Food", true));
-            allProducts.add(new Product("8", "Burger", "Juicy beef", 75.0, "", "Food", true));
-            allProducts.add(new Product("9", "Popcorn", "Butter flavor", 35.0, "", "Snacks", true));
-            allProducts.add(new Product("10", "Nachos", "Cheese dip", 55.0, "", "Snacks", true));
-            setupCategories(allProducts);
-            filterProducts("All");
-        }
-
         db.collection("products")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -168,17 +157,34 @@ public class ProductListFragment extends Fragment {
                         return;
                     }
 
-                    if (value != null) {
-                        allProducts.clear();
+                    allProducts.clear();
+                    // Always add Dummy Data first for visualization
+                    addDummyProducts();
+
+                    if (value != null && !value.isEmpty()) {
                         for (QueryDocumentSnapshot document : value) {
                             Product product = document.toObject(Product.class);
                             product.setId(document.getId());
                             allProducts.add(product);
                         }
-                        setupCategories(allProducts);
-                        filterProducts("All");
-                        Log.d(TAG, "Loaded " + allProducts.size() + " total products");
                     }
+                    setupCategories(allProducts);
+                    filterProducts("All");
+                    Log.d(TAG, "Loaded " + allProducts.size() + " total products (including dummies)");
                 });
+    }
+
+    private void addDummyProducts() {
+        allProducts.add(new Product("1", "Milktea Classic", "Sweet milktea", 85.0, "", "Milktea", true));
+        allProducts.add(new Product("2", "Okinawa", "Brown sugar milktea", 95.0, "", "Milktea", true));
+        allProducts.add(new Product("3", "Wintermelon", "Refreshing milktea", 90.0, "", "Milktea", true));
+        allProducts.add(new Product("4", "Blueberry Soda", "Fizzy drink", 65.0, "", "Fruit Soda", true));
+        allProducts.add(new Product("5", "Strawberry Soda", "Berry flavor", 65.0, "", "Fruit Soda", true));
+        allProducts.add(new Product("6", "Green Apple Soda", "Tart and sweet", 65.0, "", "Fruit Soda", true));
+        allProducts.add(new Product("7", "Fries", "Crispy potato", 45.0, "", "Food", true));
+        allProducts.add(new Product("8", "Burger", "Juicy beef", 75.0, "", "Food", true));
+        allProducts.add(new Product("9", "Popcorn", "Butter flavor", 35.0, "", "Snacks", true));
+        allProducts.add(new Product("10", "Nachos", "Cheese dip", 55.0, "", "Snacks", true));
+        allProducts.add(new Product("11", "Duo Deal", "Burger and Fries", 110.0, "", "Deals", true));
     }
 }

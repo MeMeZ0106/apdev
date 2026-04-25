@@ -35,6 +35,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemProductBinding binding = ItemProductBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        
+        // Ensure standard margins are used for the 3-column grid to prevent overlapping or weird spacing
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) binding.getRoot().getLayoutParams();
+        if (layoutParams == null) {
+            layoutParams = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        int margin = (int) (4 * parent.getContext().getResources().getDisplayMetrics().density);
+        layoutParams.setMargins(margin, margin, margin, margin);
+        binding.getRoot().setLayoutParams(layoutParams);
+
         return new ProductViewHolder(binding);
     }
 
@@ -79,20 +89,24 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 binding.productName.setTextColor(Color.WHITE);
                 binding.productPrice.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.neon_pink));
 
+                float baseAlpha = 1.0f;
                 if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-                    Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.ic_food).into(binding.productImage);
+                    Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.logo2).into(binding.productImage);
+                } else {
+                    binding.productImage.setImageResource(R.drawable.logo2);
+                    baseAlpha = 0.5f;
                 }
 
                 if (product.isAvailable()) {
                     binding.addToCartButton.setEnabled(true);
                     binding.productImage.setColorFilter(null);
-                    binding.productImage.setAlpha(1.0f);
+                    binding.productImage.setAlpha(baseAlpha);
                 } else {
                     binding.addToCartButton.setEnabled(false);
                     ColorMatrix matrix = new ColorMatrix();
                     matrix.setSaturation(0);
                     binding.productImage.setColorFilter(new ColorMatrixColorFilter(matrix));
-                    binding.productImage.setAlpha(0.6f);
+                    binding.productImage.setAlpha(baseAlpha * 0.6f);
                 }
 
                 binding.addToCartButton.setVisibility(View.VISIBLE);

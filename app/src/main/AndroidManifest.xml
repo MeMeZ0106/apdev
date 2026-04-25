@@ -12,9 +12,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo2"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo2"
         android:supportsRtl="true"
         android:theme="@style/Theme.SanzinKstore">
 
@@ -41,6 +41,14 @@
 
         <activity
             android:name=".AdminProductActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".InventoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".LogsActivity"
             android:exported="false" />
 
         <service

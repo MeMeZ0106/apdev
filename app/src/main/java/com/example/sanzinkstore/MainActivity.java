@@ -23,20 +23,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.example.sanzinkstore.api.PayMongoService;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.sanzinkstore.adapter.CartAdapter;
 import com.example.sanzinkstore.databinding.ActivityMainBinding;
 import com.example.sanzinkstore.model.CartItem;
 import com.example.sanzinkstore.model.Order;
 import com.example.sanzinkstore.model.Product;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.material.navigation.NavigationView;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import android.os.Handler;
+import android.os.Looper;
+import com.example.sanzinkstore.fragment.CartFragment;
+import com.example.sanzinkstore.fragment.CheckoutFragment;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -67,9 +74,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean isAdmin = false;
     private String csvContentToSave = "";
     private PayMongoService payMongoService;
+    private static final String CART_PREFS = "cart_prefs";
+    private static final String KEY_CART = "saved_cart";
 
     // Replace with your actual PayMongo Public Key
     private static final String PAYMONGO_PUBLIC_KEY = "pk_test_your_key_here";
+    private final Handler hideHandler = new Handler(Looper.getMainLooper());
+    private final Runnable hideRunnable = this::hideSystemUI;
 
     private final ActivityResultLauncher<String> createDocumentLauncher = registerForActivityResult(
             new ActivityResultContracts.CreateDocument("text/csv"),
@@ -81,6 +92,13 @@ public class MainActivity extends AppCompatActivity {
     );
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String cartJson = new Gson().toJson(cart);
+        getSharedPreferences(CART_PREFS, MODE_PRIVATE).edit().putString(KEY_CART, cartJson).apply();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -88,17 +106,57 @@ public class MainActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-        cart = new ArrayList<>();
-
+        
         isAdmin = getIntent().getBooleanExtra("IS_ADMIN", false);
         Log.d(TAG, "Starting MainActivity. Is Admin: " + isAdmin);
+
+        // Restore cart from SharedPreferences
+        String savedCartJson = getSharedPreferences(CART_PREFS, MODE_PRIVATE).getString(KEY_CART, null);
+        if (savedCartJson != null) {
+            cart = new Gson().fromJson(savedCartJson, new TypeToken<ArrayList<CartItem>>(){}.getType());
+        } else {
+            cart = new ArrayList<>();
+        }
 
         setSupportActionBar(binding.toolbar);
         setupViewPager();
         setupUI();
         setupPayMongo();
+        updateCartTotal();
 
         handleIntent(getIntent());
+        
+        setupImmersiveMode();
+    }
+
+    private void setupImmersiveMode() {
+        WindowInsetsControllerCompat windowInsetsController =
+                new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        windowInsetsController.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        
+        hideSystemUI();
+
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(visibility -> {
+            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                hideHandler.removeCallbacks(hideRunnable);
+                hideHandler.postDelayed(hideRunnable, 3000);
+            }
+        });
+    }
+
+    private void hideSystemUI() {
+        WindowInsetsControllerCompat windowInsetsController =
+                new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
     }
 
     @Override
@@ -163,9 +221,12 @@ public class MainActivity extends AppCompatActivity {
     private void setupUI() {
         if (isAdmin) {
             binding.fabCart.setVisibility(View.GONE);
-            binding.fabAddProduct.setVisibility(View.GONE); // Controlled via Drawer/Inventory
+            binding.fabAddProduct.setVisibility(View.GONE); 
             binding.bottomPanel.setVisibility(View.VISIBLE);
             binding.toolbar.setTitle(getString(R.string.seller_access));
+            
+            // Re-enable navigation icon for drawer
+            binding.toolbar.setNavigationIcon(R.drawable.ic_menu);
             
             // Setup Drawer Toggle
             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -176,8 +237,13 @@ public class MainActivity extends AppCompatActivity {
             
             binding.navigationView.setNavigationItemSelectedListener(item -> {
                 int id = item.getItemId();
-                if (id == R.id.nav_logout) logout();
-                // Add other navigation handling here
+                if (id == R.id.nav_logout) {
+                    logout();
+                } else if (id == R.id.nav_inventory) {
+                    startActivity(new Intent(this, InventoryActivity.class));
+                } else if (id == R.id.nav_logs) {
+                    startActivity(new Intent(this, LogsActivity.class));
+                }
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             });
@@ -192,6 +258,16 @@ public class MainActivity extends AppCompatActivity {
             binding.btnAccept.setOnClickListener(v -> {
                 if (!cart.isEmpty()) {
                     processOrder("CASH_POS", true, null);
+                } else {
+                    Toast.makeText(this, "Cart is empty!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            binding.btnCancel.setOnClickListener(v -> {
+                if (!cart.isEmpty()) {
+                    cart.clear();
+                    updateCartTotal();
+                    Toast.makeText(this, "Transaction Canceled", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -249,24 +325,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void handleCheckout() {
+    public void handleCheckout() {
         if (cart.isEmpty()) {
             Toast.makeText(this, "Your cart is empty!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String[] options = {"Pay on Pickup", "GCash", "Maya"};
-        new AlertDialog.Builder(this)
-                .setTitle("Select Payment Method")
-                .setItems(options, (dialog, which) -> {
-                    if (which == 0) {
-                        processOrder("PAY_ON_PICKUP", false, null);
-                    } else {
-                        String type = (which == 1) ? "gcash" : "paymaya";
-                        initiateOnlinePayment(type);
-                    }
-                })
-                .show();
+        CartFragment cartFragment = CartFragment.newInstance(cart);
+        getSupportFragmentManager().beginTransaction()
+                .replace(android.R.id.content, cartFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void initiateOnlinePayment(String type) {
@@ -278,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
             JSONObject root = createPaymentRequestJson(type, orderId);
 
             @SuppressWarnings("deprecation")
-            RequestBody body = RequestBody.create(MediaType.parse("application/json"), root.toString());
+            RequestBody body = RequestBody.create(root.toString(), MediaType.parse("application/json"));
             String authHeader = "Basic " + Base64.encodeToString((PAYMONGO_PUBLIC_KEY + ":").getBytes(), Base64.NO_WRAP);
 
             payMongoService.createSource(authHeader, body).enqueue(new Callback<ResponseBody>() {
@@ -355,19 +424,24 @@ public class MainActivity extends AppCompatActivity {
         );
 
         if (existingOrderId != null) {
-            db.collection("orders").document(existingOrderId).set(order);
+            db.collection("orders").document(existingOrderId).set(order)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, "Order updated!", Toast.LENGTH_SHORT).show();
+                        if (isAdmin) {
+                            cart.clear();
+                            updateCartTotal();
+                        }
+                    });
         } else {
             db.collection("orders").add(order)
                     .addOnSuccessListener(documentReference -> {
                         Toast.makeText(this, "Order placed successfully!", Toast.LENGTH_SHORT).show();
                         cart.clear();
                         updateCartTotal();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to save order: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
-        }
-        
-        if (existingOrderId == null || !paymentMethod.equals("PAY_ON_PICKUP")) {
-             cart.clear();
-             updateCartTotal();
         }
     }
 
@@ -522,6 +596,29 @@ public class MainActivity extends AppCompatActivity {
         cart.add(new CartItem(product, 1));
         if (isAdmin) binding.lastAddedValue.setText(product.getName());
         updateCartTotal();
+    }
+
+    public void onCartUpdated() {
+        updateCartTotal();
+    }
+
+    public void navigateToCheckout() {
+        // Transition to CheckoutFragment
+        CheckoutFragment checkoutFragment = CheckoutFragment.newInstance(cart, totalAmount);
+        getSupportFragmentManager().beginTransaction()
+                .replace(android.R.id.content, checkoutFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void completeOrder(String paymentMethod) {
+        if ("PAY_ON_PICKUP".equals(paymentMethod)) {
+            processOrder("PAY_ON_PICKUP", false, null);
+        } else if ("GCASH".equals(paymentMethod)) {
+            initiateOnlinePayment("gcash");
+        } else if ("MAYA".equals(paymentMethod)) {
+            initiateOnlinePayment("paymaya");
+        }
     }
 
     private void updateCartTotal() {

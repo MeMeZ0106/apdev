@@ -49,6 +49,7 @@ dependencies {
 
     // Image Loading
     implementation(libs.picasso)
+    implementation(libs.gson)
 
     // Firebase
     implementation(platform(libs.firebase.bom))

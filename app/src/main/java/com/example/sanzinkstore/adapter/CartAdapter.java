@@ -61,9 +61,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             binding.btnMinus.setOnClickListener(v -> {
                 if (item.getQuantity() > 1) {
                     listener.onQuantityChanged(position, item.getQuantity() - 1);
-                } else {
-                    listener.onItemRemoved(position);
                 }
+            });
+
+            binding.btnRemove.setOnClickListener(v -> {
+                listener.onItemRemoved(position);
             });
         }
     }

@@ -44,12 +44,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <!-- REMOVE BUTTON (X) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRemove"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                app:icon="@android:drawable/ic_menu_close_clear_cancel"
+                app:iconTint="@android:color/holo_red_light" />
+
+            <!-- DEDUCT BUTTON (-) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMinus"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                app:icon="@android:drawable/ic_delete"
+                app:icon="@drawable/ic_minus"
                 app:iconTint="@color/neon_pink" />
 
             <TextView
@@ -61,6 +71,7 @@
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 
+            <!-- ADD BUTTON (+) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPlus"
                 style="@style/Widget.Material3.Button.IconButton"

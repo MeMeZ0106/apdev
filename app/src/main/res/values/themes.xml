@@ -22,4 +22,12 @@
     </style>
 
     <style name="Theme.SanzinKstore" parent="Base.Theme.SanzinKstore" />
+
+    <style name="CustomDialogTheme" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
 </resources>
