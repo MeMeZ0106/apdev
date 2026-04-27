@@ -98,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
         getSharedPreferences(CART_PREFS, MODE_PRIVATE).edit().putString(KEY_CART, cartJson).apply();
     }
 
+    private static final String PREFS_NAME = "app_prefs";
+    private static final String KEY_DARK_MODE = "dark_mode";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,13 +113,24 @@ public class MainActivity extends AppCompatActivity {
         isAdmin = getIntent().getBooleanExtra("IS_ADMIN", false);
         Log.d(TAG, "Starting MainActivity. Is Admin: " + isAdmin);
 
-        // Restore cart from SharedPreferences
-        String savedCartJson = getSharedPreferences(CART_PREFS, MODE_PRIVATE).getString(KEY_CART, null);
-        if (savedCartJson != null) {
-            cart = new Gson().fromJson(savedCartJson, new TypeToken<ArrayList<CartItem>>(){}.getType());
-        } else {
-            cart = new ArrayList<>();
-        }
+        // Restore cart from SharedPreferences on a background thread
+        cart = new ArrayList<>();
+        new Thread(() -> {
+            String savedCartJson = getSharedPreferences(CART_PREFS, MODE_PRIVATE).getString(KEY_CART, null);
+            if (savedCartJson != null) {
+                try {
+                    List<CartItem> restoredCart = new Gson().fromJson(savedCartJson, new TypeToken<ArrayList<CartItem>>(){}.getType());
+                    if (restoredCart != null) {
+                        runOnUiThread(() -> {
+                            cart.addAll(restoredCart);
+                            updateCartTotal();
+                        });
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error restoring cart", e);
+                }
+            }
+        }).start();
 
         setSupportActionBar(binding.toolbar);
         setupViewPager();
@@ -136,13 +150,6 @@ public class MainActivity extends AppCompatActivity {
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         
         hideSystemUI();
-
-        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(visibility -> {
-            if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                hideHandler.removeCallbacks(hideRunnable);
-                hideHandler.postDelayed(hideRunnable, 3000);
-            }
-        });
     }
 
     private void hideSystemUI() {
@@ -219,30 +226,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupUI() {
+        // Setup common drawer toggle
+        binding.toolbar.setNavigationIcon(R.drawable.ic_menu);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, binding.drawerLayout, binding.toolbar,
+                R.string.app_name, R.string.app_name);
+        binding.drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
         if (isAdmin) {
             binding.fabCart.setVisibility(View.GONE);
-            binding.fabAddProduct.setVisibility(View.GONE); 
+            binding.bottomNavigation.setVisibility(View.GONE);
             binding.bottomPanel.setVisibility(View.VISIBLE);
             binding.toolbar.setTitle(getString(R.string.seller_access));
             
-            // Re-enable navigation icon for drawer
-            binding.toolbar.setNavigationIcon(R.drawable.ic_menu);
-            
-            // Setup Drawer Toggle
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, binding.drawerLayout, binding.toolbar,
-                    R.string.app_name, R.string.app_name);
-            binding.drawerLayout.addDrawerListener(toggle);
-            toggle.syncState();
-            
+            binding.navigationView.getMenu().clear();
+            binding.navigationView.inflateMenu(R.menu.drawer_menu);
+            binding.navigationView.setCheckedItem(R.id.nav_pos);
             binding.navigationView.setNavigationItemSelectedListener(item -> {
                 int id = item.getItemId();
                 if (id == R.id.nav_logout) {
                     logout();
+                } else if (id == R.id.nav_pos) {
+                    // Already here
                 } else if (id == R.id.nav_inventory) {
                     startActivity(new Intent(this, InventoryActivity.class));
                 } else if (id == R.id.nav_logs) {
                     startActivity(new Intent(this, LogsActivity.class));
+                } else if (id == R.id.nav_settings) {
+                    startActivity(new Intent(this, SettingsActivity.class));
+                } else if (id == R.id.nav_print_orders) {
+                    fetchOrdersAndPrint();
+                } else if (id == R.id.nav_download_csv) {
+                    fetchOrdersAndDownloadCsv();
                 }
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
@@ -263,26 +279,58 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            binding.btnCancel.setOnClickListener(v -> {
-                if (!cart.isEmpty()) {
-                    cart.clear();
-                    updateCartTotal();
-                    Toast.makeText(this, "Transaction Canceled", Toast.LENGTH_SHORT).show();
-                }
-            });
-
         } else {
             binding.fabCart.setVisibility(View.VISIBLE);
-            binding.fabAddProduct.setVisibility(View.GONE);
+            binding.bottomNavigation.setVisibility(View.VISIBLE);
             binding.bottomPanel.setVisibility(View.GONE);
             binding.fabCart.setOnClickListener(v -> handleCheckout());
             binding.toolbar.setTitle(getString(R.string.app_name));
             
-            // Hide menu icon for customer if drawer not needed
-            binding.toolbar.setNavigationIcon(null);
+            binding.navigationView.getMenu().clear();
+            binding.navigationView.inflateMenu(R.menu.customer_drawer_menu);
+            binding.navigationView.setCheckedItem(R.id.nav_home);
+            binding.navigationView.setNavigationItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.nav_logout) {
+                    logout();
+                } else if (id == R.id.nav_home) {
+                    // Already here
+                } else if (id == R.id.nav_profile) {
+                    startActivity(new Intent(this, ProfileActivity.class));
+                } else if (id == R.id.nav_settings) {
+                    startActivity(new Intent(this, SettingsActivity.class));
+                }
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            });
+
+            binding.bottomNavigation.setOnItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.nav_contact) {
+                    Toast.makeText(this, "Opening Mail...", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:support@sanzinkstore.com"));
+                    startActivity(intent);
+                    return true;
+                } else if (id == R.id.nav_cart) {
+                    handleCheckout();
+                    return true;
+                }
+                return false;
+            });
             
             updateCartTotal();
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem themeItem = menu.findItem(R.id.action_theme_toggle);
+        if (themeItem != null) {
+            boolean isDarkMode = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(KEY_DARK_MODE, true);
+            themeItem.setIcon(isDarkMode ? R.drawable.ic_sun : R.drawable.ic_moon);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -298,14 +346,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_print_orders) {
-            fetchOrdersAndPrint();
-            return true;
-        } else if (id == R.id.action_download_csv) {
-            fetchOrdersAndDownloadCsv();
-            return true;
-        } else if (id == R.id.action_logout) {
-            logout();
+        if (id == R.id.action_theme_toggle) {
+            boolean isDarkMode = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(KEY_DARK_MODE, true);
+            boolean newDarkMode = !isDarkMode;
+            getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putBoolean(KEY_DARK_MODE, newDarkMode).apply();
+
+            if (newDarkMode) {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -5,7 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="?android:attr/windowBackground"
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,17 +16,17 @@
             android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/black"
+            android:background="?attr/colorSurface"
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_menu"
+                app:navigationIconTint="?attr/colorOnSurface"
                 app:title="SanZin K-Store"
                 app:titleCentered="true"
-                app:titleTextColor="@color/white" />
+                app:titleTextColor="?attr/colorOnSurface" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -41,7 +41,7 @@
             android:id="@+id/bottomPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="0dp"
             app:cardElevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent">
@@ -56,7 +56,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Added Item:"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="None"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="20sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/lastAddedLabel" />
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="No. of Items:"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/lastAddedValue" />
@@ -90,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="32dp"
                     android:text="0"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="@id/itemsCountLabel"
                     app:layout_constraintEnd_toStartOf="@id/barrier"
@@ -102,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="Total:"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -114,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="32dp"
                     android:text="0"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="22sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@id/totalLabel"
@@ -169,28 +169,31 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Keep FABs for Customer view but hide in Seller view if needed -->
+        <!-- Customer Floating Action Button for Cart -->
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fabCart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="Cart"
+            android:text="Cart (0) - PHP 0.00"
             android:visibility="gone"
-            app:backgroundTint="@color/neon_pink"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:icon="@drawable/ic_shopping_cart"
+            app:backgroundTint="?attr/colorPrimary"
+            app:iconTint="?attr/colorOnPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAddProduct"
-            android:layout_width="wrap_content"
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@android:drawable/ic_input_add"
+            android:background="?attr/colorSurface"
             android:visibility="gone"
-            app:backgroundTint="@color/neon_pink"
-            app:layout_constraintBottom_toTopOf="@id/fabCart"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:itemIconTint="?attr/colorPrimary"
+            app:itemTextColor="?attr/colorOnSurface"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/customer_bottom_nav" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -199,7 +202,10 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="?attr/colorSurface"
         app:headerLayout="@layout/nav_header"
+        app:itemTextColor="?attr/colorOnSurface"
+        app:itemIconTint="?attr/colorOnSurface"
         app:menu="@menu/drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

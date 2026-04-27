@@ -71,8 +71,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             binding.productPrice.setText(String.format("₱%.2f", product.getPrice()));
             
             if (isAdmin) {
-                // Seller View: Hide images, show category-coded backgrounds
-                binding.productImage.setVisibility(View.GONE);
+                // Seller View: Show small images, category-coded backgrounds
+                binding.productImage.setVisibility(View.VISIBLE);
+                // Adjust height for POS style grid (smaller)
+                ViewGroup.LayoutParams params = binding.productImage.getLayoutParams();
+                params.height = (int) (80 * itemView.getContext().getResources().getDisplayMetrics().density);
+                binding.productImage.setLayoutParams(params);
+                
                 int bgColor = getCategoryColor(product.getCategory());
                 binding.getRoot().setCardBackgroundColor(bgColor);
                 
@@ -81,6 +86,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 binding.productPrice.setTextColor(Color.DKGRAY);
                 
                 binding.addToCartButton.setVisibility(View.GONE);
+                
+                if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+                    Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.logo2).into(binding.productImage);
+                } else {
+                    binding.productImage.setImageResource(R.drawable.logo2);
+                }
+
                 binding.getRoot().setOnClickListener(v -> listener.onProductClick(product));
             } else {
                 // Customer View: Show images, standard branding

@@ -2,23 +2,45 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_pos"
+            android:icon="@drawable/ic_pos"
+            android:title="POS" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="Settings" />
+        <item
             android:id="@+id/nav_logs"
-            android:icon="@android:drawable/ic_menu_agenda"
+            android:icon="@drawable/ic_book"
             android:title="Logs" />
         <item
             android:id="@+id/nav_inventory"
-            android:icon="@android:drawable/ic_dialog_info"
+            android:icon="@drawable/ic_shelf"
             android:title="Inventory" />
         <item
             android:id="@+id/nav_messages"
-            android:icon="@android:drawable/ic_menu_send"
+            android:icon="@android:drawable/ic_dialog_email"
             android:title="Customer Messages" />
     </group>
+
+    <item android:title="Tools">
+        <menu>
+            <item
+                android:id="@+id/nav_print_orders"
+                android:icon="@android:drawable/ic_menu_set_as"
+                android:title="Print Orders" />
+            <item
+                android:id="@+id/nav_download_csv"
+                android:icon="@drawable/ic_csv"
+                android:title="Download Report (CSV)" />
+        </menu>
+    </item>
+
     <item android:title="Account">
         <menu>
             <item
                 android:id="@+id/nav_logout"
-                android:icon="@android:drawable/ic_lock_power_off"
+                android:icon="@drawable/ic_logout"
                 android:title="Logout" />
         </menu>
     </item>

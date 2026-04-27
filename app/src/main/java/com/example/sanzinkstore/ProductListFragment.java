@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -111,22 +112,26 @@ public class ProductListFragment extends Fragment {
             chip.setCheckable(true);
             chip.setCheckedIconVisible(false);
             
-            // Custom Styling for Neon Pink & Black
-            chip.setChipBackgroundColorResource(R.color.black);
-            chip.setTextColor(getResources().getColor(R.color.white));
-            chip.setChipStrokeColorResource(R.color.neon_pink);
+            // Custom Styling for Matte Black & Super White Grey
+            chip.setChipBackgroundColorResource(R.color.background);
+            chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_background));
+            chip.setChipStrokeColorResource(R.color.outline);
             chip.setChipStrokeWidth(2f);
             
-            if (cat.equals("All")) chip.setChecked(true);
+            if (cat.equals("All")) {
+                chip.setChecked(true);
+                chip.setChipBackgroundColorResource(R.color.primary);
+                chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_primary));
+            }
 
             chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
                     filterProducts(cat);
-                    chip.setChipBackgroundColorResource(R.color.neon_pink);
-                    chip.setTextColor(getResources().getColor(R.color.black));
+                    chip.setChipBackgroundColorResource(R.color.primary);
+                    chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_primary));
                 } else {
-                    chip.setChipBackgroundColorResource(R.color.black);
-                    chip.setTextColor(getResources().getColor(R.color.white));
+                    chip.setChipBackgroundColorResource(R.color.background);
+                    chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_background));
                 }
             });
             categoryChipGroup.addView(chip);
@@ -148,29 +153,35 @@ public class ProductListFragment extends Fragment {
     }
 
     private void loadProducts() {
-        Log.d(TAG, "Loading products");
+        Log.d(TAG, "Loading products: Instant load dummy data first.");
         
+        // INSTANT LOAD: Ensure screen is never empty, even without internet
+        allProducts.clear();
+        addDummyProducts();
+        setupCategories(allProducts);
+        filterProducts("All");
+
+        // ASYNC LOAD: Fetch real data from Firestore with a timeout-aware listener
         db.collection("products")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.e(TAG, "Listen failed.", error);
+                        Log.e(TAG, "Firestore listen failed. Continuing with dummy data.", error);
                         return;
                     }
 
-                    allProducts.clear();
-                    // Always add Dummy Data first for visualization
-                    addDummyProducts();
-
                     if (value != null && !value.isEmpty()) {
+                        Log.d(TAG, "Firestore returned " + value.size() + " products. Replacing dummy data.");
+                        allProducts.clear(); // Clear dummy data only when real data arrives
                         for (QueryDocumentSnapshot document : value) {
                             Product product = document.toObject(Product.class);
                             product.setId(document.getId());
                             allProducts.add(product);
                         }
+                        setupCategories(allProducts);
+                        filterProducts("All");
+                    } else {
+                        Log.d(TAG, "Firestore collection is empty. Staying with dummy data.");
                     }
-                    setupCategories(allProducts);
-                    filterProducts("All");
-                    Log.d(TAG, "Loaded " + allProducts.size() + " total products (including dummies)");
                 });
     }
 

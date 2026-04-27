@@ -74,14 +74,22 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void navigateToMain(boolean isAdmin) {
+        binding.btnContinueCustomer.setEnabled(false);
+        binding.btnContinueSeller.setEnabled(false);
+        binding.loadingIndicator.setVisibility(View.VISIBLE);
+
         if (isAdmin) {
             Toast.makeText(this, "Welcome Seller!", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Welcome Customer!", Toast.LENGTH_SHORT).show();
         }
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.putExtra("IS_ADMIN", isAdmin);
-        startActivity(intent);
-        finish();
+
+        // Simulate a small delay for the loading animation to be seen
+        new Handler().postDelayed(() -> {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("IS_ADMIN", isAdmin);
+            startActivity(intent);
+            finish();
+        }, 800);
     }
 }

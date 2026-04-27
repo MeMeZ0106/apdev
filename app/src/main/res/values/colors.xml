@@ -1,31 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#FF1493</color> <!-- Neon Pink -->
-    <color name="primary_variant">#C71585</color>
-    <color name="secondary">#000000</color>
-    <color name="background">#000000</color>
-    <color name="surface">#000000</color>
+    <!-- Soft Rose Palette (Light Mode) -->
+    <!-- Based on provided image: #D14D72, #FFABAB, #FCC8D1, #FEF2F4 -->
+
+    <color name="primary">#D14D72</color> <!-- Rose -->
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#FFABAB</color> <!-- Peach -->
+    <color name="on_primary_container">#D14D72</color>
+
+    <color name="secondary">#FCC8D1</color> <!-- Light Pink -->
+    <color name="on_secondary">#121212</color>
+    <color name="secondary_container">#FEF2F4</color> <!-- Off-white Pink -->
+    <color name="on_secondary_container">#D14D72</color>
+
+    <color name="background">#FEF2F4</color> <!-- Off-white Pink -->
+    <color name="on_background">#121212</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#121212</color>
+    <color name="surface_variant">#FCC8D1</color>
+    <color name="on_surface_variant">#D14D72</color>
+
+    <color name="outline">#D14D72</color>
+    <color name="outline_variant">#FFABAB</color>
+
+    <!-- Status Colors -->
     <color name="error">#B00020</color>
-
-    <color name="on_primary">#000000</color> <!-- BLACK text on Neon Pink -->
-    <color name="on_secondary">#FFFFFF</color>
-    <color name="on_background">#FFFFFF</color>
-    <color name="on_surface">#FFFFFF</color>
     <color name="on_error">#FFFFFF</color>
+    <color name="success">#2E7D32</color>
+    <color name="on_success">#FFFFFF</color>
 
-    <color name="text_secondary">#BDBDBD</color>
-    <color name="available">#4CAF50</color>
-    <color name="unavailable">#F44336</color>
+    <!-- Core Palette Aliases -->
+    <color name="rose_primary">#D14D72</color>
+    <color name="peach_accent">#FFABAB</color>
+    <color name="soft_pink">#FCC8D1</color>
+    <color name="mist_white">#FEF2F4</color>
 
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="neon_pink">#FF1493</color>
+    <!-- Category Muted Palette (Based on Rose Theme) -->
+    <color name="cat_milktea">#FFABAB</color>
+    <color name="cat_fruit_soda">#FCC8D1</color>
+    <color name="cat_food">#FADADD</color>
+    <color name="cat_snacks">#F8C3CD</color>
+    <color name="cat_deals">#E75480</color>
+    <color name="cat_default">#D14D72</color>
 
-    <!-- Category Colors -->
-    <color name="cat_milktea">#B3E5FC</color>
-    <color name="cat_fruit_soda">#C8E6C9</color>
-    <color name="cat_food">#FFF9C4</color>
-    <color name="cat_snacks">#FFE0B2</color>
-    <color name="cat_deals">#F8BBD0</color>
-    <color name="cat_default">#E1BEE7</color>
+    <!-- Legacy support -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#121212</color>
+    <color name="neon_pink">#D14D72</color>
+    <color name="text_secondary">#757575</color>
+    <color name="matte_black">#121212</color>
+    <color name="super_white_grey">#E0E0E0</color>
 </resources>

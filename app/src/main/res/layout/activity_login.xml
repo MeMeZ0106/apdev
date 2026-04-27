@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/black">
+    android:background="?attr/colorSurface">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/login_title"
             android:textAppearance="?attr/textAppearanceHeadlineMedium"
-            android:textColor="@color/white"
+            android:textColor="?attr/colorOnSurface"
             android:letterSpacing="0.1"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -44,8 +44,8 @@
             android:layout_marginTop="48dp"
             android:padding="16dp"
             android:text="Continue as Customer"
-            android:textColor="@color/black"
-            app:backgroundTint="@color/neon_pink"
+            android:textColor="?attr/colorOnPrimary"
+            app:backgroundTint="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
@@ -60,13 +60,25 @@
             android:layout_marginTop="16dp"
             android:padding="16dp"
             android:text="Continue as Seller"
-            android:textColor="@color/black"
-            app:backgroundTint="@color/neon_pink"
+            android:textColor="?attr/colorOnPrimary"
+            app:backgroundTint="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btnContinueCustomer"
             app:layout_constraintWidth_max="400dp"
             app:cornerRadius="8dp" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/loadingIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:indicatorColor="?attr/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnContinueSeller" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

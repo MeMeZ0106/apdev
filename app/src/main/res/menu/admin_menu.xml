@@ -2,15 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_print_orders"
-        android:title="Print Orders"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_download_csv"
-        android:title="Download Report (CSV)"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_logout"
-        android:title="Logout"
-        app:showAsAction="never" />
+        android:id="@+id/action_theme_toggle"
+        android:icon="@drawable/ic_sun"
+        android:title="Toggle Theme"
+        app:showAsAction="always" />
 </menu>

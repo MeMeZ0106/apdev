@@ -51,15 +51,35 @@ public class InventoryActivity extends AppCompatActivity {
 
     private void loadProducts() {
         db.collection("products")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addSnapshotListener((value, error) -> {
                     productList.clear();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Product product = doc.toObject(Product.class);
-                        product.setId(doc.getId());
-                        productList.add(product);
+                    // Always add dummy products first so the screen is never empty
+                    addDummyProducts();
+
+                    if (error != null) {
+                        Log.e("InventoryActivity", "Firestore listen failed.", error);
+                    } else if (value != null) {
+                        for (QueryDocumentSnapshot doc : value) {
+                            Product product = doc.toObject(Product.class);
+                            product.setId(doc.getId());
+                            productList.add(product);
+                        }
                     }
                     adapter.notifyDataSetChanged();
                 });
+    }
+
+    private void addDummyProducts() {
+        productList.add(new Product("1", "Milktea Classic", "Sweet milktea", 85.0, "", "Milktea", true));
+        productList.add(new Product("2", "Okinawa", "Brown sugar milktea", 95.0, "", "Milktea", true));
+        productList.add(new Product("3", "Wintermelon", "Refreshing milktea", 90.0, "", "Milktea", true));
+        productList.add(new Product("4", "Blueberry Soda", "Fizzy drink", 65.0, "", "Fruit Soda", true));
+        productList.add(new Product("5", "Strawberry Soda", "Berry flavor", 65.0, "", "Fruit Soda", true));
+        productList.add(new Product("6", "Green Apple Soda", "Tart and sweet", 65.0, "", "Fruit Soda", true));
+        productList.add(new Product("7", "Fries", "Crispy potato", 45.0, "", "Food", true));
+        productList.add(new Product("8", "Burger", "Juicy beef", 75.0, "", "Food", true));
+        productList.add(new Product("9", "Popcorn", "Butter flavor", 35.0, "", "Snacks", true));
+        productList.add(new Product("10", "Nachos", "Cheese dip", 55.0, "", "Snacks", true));
+        productList.add(new Product("11", "Duo Deal", "Burger and Fries", 110.0, "", "Deals", true));
     }
 }

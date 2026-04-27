@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matte Black & Super White Grey Theme (Night Mode) -->
+    <color name="primary">#E0E0E0</color>
+    <color name="on_primary">#121212</color>
+    <color name="primary_container">#333333</color>
+    <color name="on_primary_container">#E0E0E0</color>
+
+    <color name="secondary">#BDBDBD</color>
+    <color name="on_secondary">#121212</color>
+    <color name="secondary_container">#424242</color>
+    <color name="on_secondary_container">#E0E0E0</color>
+
+    <color name="background">#121212</color>
+    <color name="on_background">#E0E0E0</color>
+    <color name="surface">#121212</color>
+    <color name="on_surface">#E0E0E0</color>
+    <color name="surface_variant">#212121</color>
+    <color name="on_surface_variant">#E0E0E0</color>
+    <color name="outline">#E0E0E0</color>
+
+    <color name="error">#CF6679</color>
+    <color name="on_error">#000000</color>
+    <color name="success">#81C784</color>
+
+    <!-- Core Colors -->
+    <color name="matte_black">#121212</color>
+    <color name="super_white_grey">#E0E0E0</color>
+
+    <!-- Legacy aliases -->
+    <color name="black">#121212</color>
+    <color name="white">#E0E0E0</color>
+    <color name="neon_pink">#E0E0E0</color>
+    <color name="text_secondary">#BDBDBD</color>
+
+    <!-- Category Colors (Muted Dark Monochrome) -->
+    <color name="cat_milktea">#212121</color>
+    <color name="cat_fruit_soda">#333333</color>
+    <color name="cat_food">#424242</color>
+    <color name="cat_snacks">#484848</color>
+    <color name="cat_deals">#525252</color>
+    <color name="cat_default">#616161</color>
+</resources>
