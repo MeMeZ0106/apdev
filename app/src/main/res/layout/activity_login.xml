@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:padding="32dp">
 
+        <!-- Logo -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/logo"
             android:layout_width="160dp"
@@ -22,6 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- App title -->
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
@@ -36,49 +38,126 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/logo" />
 
+        <!-- Customer: Google Sign-In -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnContinueCustomer"
+            android:id="@+id/googleSignInButton"
             style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
             android:padding="16dp"
-            android:text="Continue as Customer"
+            android:text="@string/customer_login_button"
             android:textColor="?attr/colorOnPrimary"
             app:backgroundTint="?attr/colorPrimary"
+            app:icon="@android:drawable/ic_menu_search"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
             app:layout_constraintWidth_max="400dp"
             app:cornerRadius="8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnContinueSeller"
-            style="@style/Widget.Material3.Button.TonalButton"
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="40dp"
+            android:background="?attr/colorOutline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/googleSignInButton" />
+
+        <!-- Seller section label -->
+        <TextView
+            android:id="@+id/adminLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/seller_access"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
+            android:textColor="?attr/colorPrimary"
+            android:letterSpacing="0.05"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider" />
+
+        <!-- Seller email field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/adminEmailLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:padding="16dp"
-            android:text="Continue as Seller"
-            android:textColor="?attr/colorOnPrimary"
-            app:backgroundTint="?attr/colorPrimary"
+            android:hint="@string/seller_email_hint"
+            app:hintTextColor="?attr/colorPrimary"
+            app:boxStrokeColor="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnContinueCustomer"
+            app:layout_constraintTop_toBottomOf="@id/adminLabel"
+            app:layout_constraintWidth_max="400dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/adminEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Seller password field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/adminPasswordLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="@string/seller_password_hint"
+            app:hintTextColor="?attr/colorPrimary"
+            app:boxStrokeColor="?attr/colorPrimary"
+            app:endIconMode="password_toggle"
+            app:endIconTint="?attr/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/adminEmailLayout"
+            app:layout_constraintWidth_max="400dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/adminPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Seller login button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/adminLoginButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="32dp"
+            android:padding="16dp"
+            android:text="@string/seller_login_button"
+            android:textColor="?attr/colorOnPrimary"
+            app:backgroundTint="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/adminPasswordLayout"
+            app:layout_constraintVertical_bias="0.0"
             app:layout_constraintWidth_max="400dp"
             app:cornerRadius="8dp" />
 
+        <!-- Loading indicator -->
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/loadingIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:indeterminate="true"
             android:visibility="gone"
             app:indicatorColor="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnContinueSeller" />
+            app:layout_constraintTop_toBottomOf="@id/adminLoginButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
