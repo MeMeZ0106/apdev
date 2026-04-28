@@ -1,8 +1,11 @@
 package com.example.sanzinkstore.model;
 
+import com.google.firebase.firestore.Exclude;
 import java.util.List;
 
 public class Order {
+    /** Document ID — set after toObject(), never stored in Firestore. */
+    private String orderId;
     private String userId;
     private String customerName;
     private String customerEmail;
@@ -31,6 +34,11 @@ public class Order {
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    @Exclude
+    public String getOrderId() { return orderId; }
+    @Exclude
+    public void setOrderId(String orderId) { this.orderId = orderId; }
     public String getCustomerName() { return customerName; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
     public String getCustomerEmail() { return customerEmail; }

@@ -259,15 +259,20 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.nav_pos) {
                     // Already here
                 } else if (id == R.id.nav_profile) {
-                    startActivity(new Intent(this, ProfileActivity.class));
+                    startActivity(new Intent(this, ProfileActivity.class)
+                            .putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, true));
                 } else if (id == R.id.nav_inventory) {
-                    startActivity(new Intent(this, InventoryActivity.class));
+                    startActivity(new Intent(this, InventoryActivity.class)
+                            .putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, true));
                 } else if (id == R.id.nav_logs) {
-                    startActivity(new Intent(this, LogsActivity.class));
+                    startActivity(new Intent(this, LogsActivity.class)
+                            .putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, true));
                 } else if (id == R.id.nav_settings) {
-                    startActivity(new Intent(this, SettingsActivity.class));
+                    startActivity(new Intent(this, SettingsActivity.class)
+                            .putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, true));
                 } else if (id == R.id.nav_messages) {
-                    startActivity(new Intent(this, SellerInboxActivity.class));
+                    startActivity(new Intent(this, SellerInboxActivity.class)
+                            .putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, true));
                 } else if (id == R.id.nav_print_orders) {
                     fetchOrdersAndPrint();
                 } else if (id == R.id.nav_download_csv) {
@@ -313,9 +318,11 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.nav_home) {
                     // Already here
                 } else if (id == R.id.nav_profile) {
-                    startActivity(new Intent(this, ProfileActivity.class));
+                    startActivity(new Intent(this, ProfileActivity.class)
+                            .putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, false));
                 } else if (id == R.id.nav_settings) {
-                    startActivity(new Intent(this, SettingsActivity.class));
+                    startActivity(new Intent(this, SettingsActivity.class)
+                            .putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, false));
                 }
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
                 return true;

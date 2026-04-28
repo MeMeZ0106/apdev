@@ -10,18 +10,18 @@
 
     <color name="secondary">#E53935</color>          <!-- Light Red -->
     <color name="on_secondary">#FFFFFF</color>
-    <color name="secondary_container">#EED9B9</color><!-- Warm Cream -->
+    <color name="secondary_container">#FFF3E8</color><!-- Warm cream container -->
     <color name="on_secondary_container">#5E0006</color>
 
-    <color name="background">#EED9B9</color>         <!-- Warm Cream -->
-    <color name="on_background">#5E0006</color>      <!-- Dark Maroon -->
-    <color name="surface">#FFF8F0</color>            <!-- Off-white warm -->
+    <color name="background">#FFFFFF</color>         <!-- Clean White background -->
+    <color name="on_background">#5E0006</color>      <!-- Dark Maroon text -->
+    <color name="surface">#FFF3E8</color>            <!-- Warm cream cards -->
     <color name="on_surface">#5E0006</color>
-    <color name="surface_variant">#F5E0C0</color>    <!-- Darker cream -->
+    <color name="surface_variant">#EED9B9</color>    <!-- Sandy cream for chips/inputs -->
     <color name="on_surface_variant">#9B0F06</color>
 
-    <color name="outline">#E53935</color>
-    <color name="outline_variant">#F0C8A0</color>
+    <color name="outline">#D9A89A</color>            <!-- Muted rose-red outline -->
+    <color name="outline_variant">#ECCCC0</color>
 
     <!-- Status Colors -->
     <color name="error">#B00020</color>
@@ -49,13 +49,13 @@
     <color name="neon_pink">#9B0F06</color>          <!-- Main accent: dark red -->
     <color name="text_secondary">#8B3E38</color>
     <color name="matte_black">#5E0006</color>
-    <color name="super_white_grey">#F5E0C0</color>
+    <color name="super_white_grey">#EED9B9</color>
 
     <!-- Messaging colors -->
     <color name="msg_sent_bg">#9B0F06</color>
     <color name="msg_sent_text">#FFFFFF</color>
-    <color name="msg_received_bg">#F0D8B0</color>
+    <color name="msg_received_bg">#FFF3E8</color>
     <color name="msg_received_text">#5E0006</color>
-    <color name="msg_input_bg">#F5E8D0</color>
+    <color name="msg_input_bg">#FFFFFF</color>
     <color name="msg_time_text">#8B3E38</color>
 </resources>

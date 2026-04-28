@@ -5,15 +5,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.sanzinkstore.model.CartItem;
 import com.example.sanzinkstore.model.Order;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -28,7 +30,7 @@ public class LogsActivity extends BaseDrawerActivity {
     private static final String TAG = "LogsActivity";
     private RecyclerView rvLogs;
     private FirebaseFirestore db;
-    private List<Order> orders = new ArrayList<>();
+    private final List<Order> orders = new ArrayList<>();
     private OrderAdapter adapter;
 
     @Override
@@ -43,7 +45,7 @@ public class LogsActivity extends BaseDrawerActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setupDrawer(toolbar, R.id.nav_logs);
 
-        adapter = new OrderAdapter(orders);
+        adapter = new OrderAdapter(orders, isAdmin, db, this);
         rvLogs.setAdapter(adapter);
 
         loadLogs();
@@ -59,20 +61,18 @@ public class LogsActivity extends BaseDrawerActivity {
                         Toast.makeText(this, "Failed to load logs: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                         return;
                     }
-
                     if (value != null) {
                         orders.clear();
-                        Log.d(TAG, "Logs received: " + value.size() + " orders");
                         for (QueryDocumentSnapshot doc : value) {
                             try {
                                 Order order = doc.toObject(Order.class);
+                                order.setOrderId(doc.getId());   // store doc ID
                                 orders.add(order);
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing order: " + doc.getId(), e);
                             }
                         }
                         adapter.notifyDataSetChanged();
-                        
                         if (orders.isEmpty()) {
                             Toast.makeText(this, "No transaction history found.", Toast.LENGTH_SHORT).show();
                         }
@@ -80,84 +80,141 @@ public class LogsActivity extends BaseDrawerActivity {
                 });
     }
 
+    // ── Adapter ──────────────────────────────────────────────────────────────────
+
     private static class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
         private final List<Order> orders;
+        private final boolean isAdmin;
+        private final FirebaseFirestore db;
+        private final LogsActivity host;
 
-        public OrderAdapter(List<Order> orders) {
-            this.orders = orders;
+        OrderAdapter(List<Order> orders, boolean isAdmin, FirebaseFirestore db, LogsActivity host) {
+            this.orders  = orders;
+            this.isAdmin = isAdmin;
+            this.db      = db;
+            this.host    = host;
         }
 
         @NonNull
         @Override
         public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_order, parent, false);
             return new OrderViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
             Order order = orders.get(position);
-            holder.tvOrderId.setText("Order Date: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(order.getTimestamp())));
-            holder.tvTimestamp.setText("Time: " + new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date(order.getTimestamp())));
 
-            // Show customer info only for online (non-POS) orders
+            holder.tvOrderId.setText("Order Date: " +
+                    new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+                            .format(new Date(order.getTimestamp())));
+            holder.tvTimestamp.setText("Time: " +
+                    new SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+                            .format(new Date(order.getTimestamp())));
+
+            // Customer info (online orders only)
             String name  = order.getCustomerName()  != null ? order.getCustomerName().trim()  : "";
             String email = order.getCustomerEmail() != null ? order.getCustomerEmail().trim() : "";
             if (!name.isEmpty() || !email.isEmpty()) {
-                String customerDisplay = "Customer: ";
-                if (!name.isEmpty()) customerDisplay += name;
-                if (!email.isEmpty()) customerDisplay += (!name.isEmpty() ? "  •  " : "") + email;
-                holder.tvCustomer.setText(customerDisplay);
+                String display = "Customer: " + name + (!name.isEmpty() && !email.isEmpty() ? "  •  " : "") + email;
+                holder.tvCustomer.setText(display);
                 holder.tvCustomer.setVisibility(View.VISIBLE);
             } else {
                 holder.tvCustomer.setVisibility(View.GONE);
             }
 
+            // Items summary
             StringBuilder itemsStr = new StringBuilder();
             if (order.getItems() != null) {
                 for (CartItem item : order.getItems()) {
                     if (item.getProduct() != null) {
-                        itemsStr.append(item.getQuantity()).append("x ").append(item.getProduct().getName()).append(", ");
+                        itemsStr.append(item.getQuantity()).append("x ")
+                                .append(item.getProduct().getName()).append(", ");
                     }
                 }
             }
             if (itemsStr.length() > 2) itemsStr.setLength(itemsStr.length() - 2);
             else itemsStr.append("No items listed");
-            
             holder.tvItems.setText(itemsStr.toString());
-            
-            holder.tvTotal.setText(String.format(Locale.getDefault(), "Total: PHP %.2f", order.getTotalAmount()));
-            
+
+            holder.tvTotal.setText(String.format(Locale.getDefault(),
+                    "Total: PHP %.2f", order.getTotalAmount()));
+
             String status = order.getStatus() != null ? order.getStatus() : "PENDING";
             boolean isPaid = order.isPaid();
-            
             holder.tvStatus.setText(status + (isPaid ? " (PAID)" : " (UNPAID)"));
-            
+
             if (isPaid) {
-                holder.tvStatus.setTextColor(0xFF4CAF50); // Green
+                holder.tvStatus.setTextColor(0xFF4CAF50);      // Green
             } else if ("CANCELLED".equals(status)) {
-                holder.tvStatus.setTextColor(0xFFF44336); // Red
+                holder.tvStatus.setTextColor(0xFFF44336);      // Red
             } else {
-                holder.tvStatus.setTextColor(0xFFFF9800); // Orange
+                holder.tvStatus.setTextColor(0xFFFF9800);      // Orange
+            }
+
+            // ── Action buttons (seller only, PENDING orders only) ─────────────────
+            boolean isPending = "PENDING".equals(status) && !isPaid;
+            if (isAdmin && isPending && order.getOrderId() != null) {
+                holder.layoutActions.setVisibility(View.VISIBLE);
+
+                holder.btnMarkPaid.setOnClickListener(v ->
+                        confirmAction(order, "Mark as Paid",
+                                "Mark this order as paid (PHP " +
+                                        String.format(Locale.getDefault(), "%.2f", order.getTotalAmount()) + ")?",
+                                "PENDING", true));
+
+                holder.btnCancel.setOnClickListener(v ->
+                        confirmAction(order, "Cancel Order",
+                                "Are you sure you want to cancel this order?",
+                                "CANCELLED", false));
+            } else {
+                holder.layoutActions.setVisibility(View.GONE);
             }
         }
 
-        @Override
-        public int getItemCount() {
-            return orders.size();
+        private void confirmAction(Order order, String title, String message,
+                                   String newStatus, boolean markPaid) {
+            new AlertDialog.Builder(host)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton("Confirm", (d, w) -> updateOrder(order, newStatus, markPaid))
+                    .setNegativeButton("Cancel", null)
+                    .show();
         }
+
+        private void updateOrder(Order order, String newStatus, boolean markPaid) {
+            db.collection("orders").document(order.getOrderId())
+                    .update("status", newStatus, "paid", markPaid)
+                    .addOnSuccessListener(v ->
+                            Toast.makeText(host,
+                                    markPaid ? "Order marked as paid." : "Order cancelled.",
+                                    Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e ->
+                            Toast.makeText(host, "Update failed: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show());
+        }
+
+        @Override
+        public int getItemCount() { return orders.size(); }
 
         static class OrderViewHolder extends RecyclerView.ViewHolder {
             TextView tvOrderId, tvTimestamp, tvCustomer, tvItems, tvTotal, tvStatus;
+            LinearLayout layoutActions;
+            MaterialButton btnMarkPaid, btnCancel;
 
-            public OrderViewHolder(@NonNull View itemView) {
+            OrderViewHolder(@NonNull View itemView) {
                 super(itemView);
-                tvOrderId   = itemView.findViewById(R.id.tvOrderId);
-                tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
-                tvCustomer  = itemView.findViewById(R.id.tvCustomer);
-                tvItems     = itemView.findViewById(R.id.tvItems);
-                tvTotal     = itemView.findViewById(R.id.tvTotal);
-                tvStatus    = itemView.findViewById(R.id.tvStatus);
+                tvOrderId     = itemView.findViewById(R.id.tvOrderId);
+                tvTimestamp   = itemView.findViewById(R.id.tvTimestamp);
+                tvCustomer    = itemView.findViewById(R.id.tvCustomer);
+                tvItems       = itemView.findViewById(R.id.tvItems);
+                tvTotal       = itemView.findViewById(R.id.tvTotal);
+                tvStatus      = itemView.findViewById(R.id.tvStatus);
+                layoutActions = itemView.findViewById(R.id.layoutActions);
+                btnMarkPaid   = itemView.findViewById(R.id.btnMarkPaid);
+                btnCancel     = itemView.findViewById(R.id.btnCancel);
             }
         }
     }

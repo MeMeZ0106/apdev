@@ -32,8 +32,8 @@ public class SettingsActivity extends BaseDrawerActivity {
             }
         });
 
-        binding.cardProfile.setOnClickListener(v -> {
-            startActivity(new Intent(this, ProfileActivity.class));
-        });
+        binding.cardProfile.setOnClickListener(v ->
+                startActivity(new Intent(this, ProfileActivity.class)
+                        .putExtra(EXTRA_IS_ADMIN, isAdmin)));
     }
 }
