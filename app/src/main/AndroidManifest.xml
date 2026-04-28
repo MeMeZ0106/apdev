@@ -59,6 +59,15 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".SellerInboxActivity"
+            android:exported="false" />
+
         <service
             android:name=".service.MyFirebaseMessagingService"
             android:exported="false">

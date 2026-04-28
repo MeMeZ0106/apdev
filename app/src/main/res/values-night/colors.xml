@@ -40,4 +40,12 @@
     <color name="cat_snacks">#484848</color>
     <color name="cat_deals">#525252</color>
     <color name="cat_default">#616161</color>
+
+    <!-- Messaging colors (Night mode) -->
+    <color name="msg_sent_bg">#2979FF</color>
+    <color name="msg_sent_text">#FFFFFF</color>
+    <color name="msg_received_bg">#2D2D2D</color>
+    <color name="msg_received_text">#E0E0E0</color>
+    <color name="msg_input_bg">#1E1E1E</color>
+    <color name="msg_time_text">#BDBDBD</color>
 </resources>

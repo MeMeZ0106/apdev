@@ -50,4 +50,12 @@
     <color name="text_secondary">#757575</color>
     <color name="matte_black">#121212</color>
     <color name="super_white_grey">#E0E0E0</color>
+
+    <!-- Messaging colors (Light mode) -->
+    <color name="msg_sent_bg">#2979FF</color>
+    <color name="msg_sent_text">#FFFFFF</color>
+    <color name="msg_received_bg">#E0E0E0</color>
+    <color name="msg_received_text">#121212</color>
+    <color name="msg_input_bg">#F0F0F0</color>
+    <color name="msg_time_text">#757575</color>
 </resources>

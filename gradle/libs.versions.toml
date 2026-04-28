@@ -15,6 +15,7 @@ firebaseBom = "33.1.2"
 googleServices = "4.4.2"
 playServicesAuth = "21.2.0"
 firebaseStorage = "21.0.0"
+cloudinary = "3.0.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -44,6 +45,9 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
 
 # Google Auth
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+
+# Cloudinary (Media / Product Photos)
+cloudinary-android = { group = "com.cloudinary", name = "cloudinary-android", version.ref = "cloudinary" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

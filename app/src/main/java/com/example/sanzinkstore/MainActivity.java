@@ -2,9 +2,12 @@ package com.example.sanzinkstore;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.print.PrintAttributes;
+import android.util.TypedValue;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.Base64;
@@ -28,6 +31,7 @@ import com.example.sanzinkstore.api.PayMongoService;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sanzinkstore.adapter.CartAdapter;
+import com.example.sanzinkstore.api.CloudinaryHelper;
 import com.example.sanzinkstore.databinding.ActivityMainBinding;
 import com.example.sanzinkstore.model.CartItem;
 import com.example.sanzinkstore.model.Order;
@@ -109,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+
+        // Initialise Cloudinary (uses unsigned preset — no secret in app)
+        CloudinaryHelper.init(this);
         
         isAdmin = getIntent().getBooleanExtra("IS_ADMIN", false);
         Log.d(TAG, "Starting MainActivity. Is Admin: " + isAdmin);
@@ -255,6 +262,8 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(this, LogsActivity.class));
                 } else if (id == R.id.nav_settings) {
                     startActivity(new Intent(this, SettingsActivity.class));
+                } else if (id == R.id.nav_messages) {
+                    startActivity(new Intent(this, SellerInboxActivity.class));
                 } else if (id == R.id.nav_print_orders) {
                     fetchOrdersAndPrint();
                 } else if (id == R.id.nav_download_csv) {
@@ -307,10 +316,9 @@ public class MainActivity extends AppCompatActivity {
             binding.bottomNavigation.setOnItemSelectedListener(item -> {
                 int id = item.getItemId();
                 if (id == R.id.nav_contact) {
-                    Toast.makeText(this, "Opening Mail...", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(Intent.ACTION_SENDTO);
-                    intent.setData(Uri.parse("mailto:support@sanzinkstore.com"));
-                    startActivity(intent);
+                    Intent chatIntent = new Intent(this, ChatActivity.class);
+                    chatIntent.putExtra(ChatActivity.EXTRA_IS_SELLER, false);
+                    startActivity(chatIntent);
                     return true;
                 } else if (id == R.id.nav_cart) {
                     handleCheckout();
@@ -329,6 +337,14 @@ public class MainActivity extends AppCompatActivity {
         if (themeItem != null) {
             boolean isDarkMode = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(KEY_DARK_MODE, true);
             themeItem.setIcon(isDarkMode ? R.drawable.ic_sun : R.drawable.ic_moon);
+
+            // Force icon tint to colorOnPrimary so it's always visible on the toolbar
+            TypedValue tv = new TypedValue();
+            getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, tv, true);
+            int onPrimaryColor = tv.data;
+            if (themeItem.getIcon() != null) {
+                themeItem.getIcon().setTintList(ColorStateList.valueOf(onPrimaryColor));
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }

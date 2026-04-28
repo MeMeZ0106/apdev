@@ -76,15 +76,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 binding.tvUnavailable.setVisibility(View.GONE);
                 binding.addToCartButton.setEnabled(true);
                 binding.productImage.setColorFilter(null);
-                binding.productImage.setAlpha(1.0f);
             } else {
                 binding.tvUnavailable.setVisibility(View.VISIBLE);
                 binding.addToCartButton.setEnabled(false);
                 ColorMatrix matrix = new ColorMatrix();
                 matrix.setSaturation(0);
                 binding.productImage.setColorFilter(new ColorMatrixColorFilter(matrix));
-                binding.productImage.setAlpha(0.5f);
             }
+            binding.productImage.setAlpha(1.0f);
 
             if (isAdmin) {
                 // Seller View: Show small images, category-coded backgrounds
@@ -135,14 +134,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 binding.productName.setTextColor(textColor);
                 binding.productPrice.setTextColor(priceColor);
 
-                float baseAlpha = product.isAvailable() ? 1.0f : 0.5f;
                 if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
                     Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.logo2).into(binding.productImage);
                 } else {
                     binding.productImage.setImageResource(R.drawable.logo2);
-                    baseAlpha *= 0.5f;
                 }
-                binding.productImage.setAlpha(baseAlpha);
+                binding.productImage.setAlpha(1.0f);
 
                 binding.addToCartButton.setVisibility(View.VISIBLE);
                 binding.getRoot().setOnClickListener(v -> {
