@@ -32,6 +32,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // 16 KB alignment: limit ABIs compiled into the APK
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
+
         // Inject Cloudinary values as BuildConfig constants
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME",  "\"$cloudName\"")
         buildConfigField("String", "CLOUDINARY_API_KEY",     "\"$cloudApiKey\"")
@@ -39,6 +44,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Keep x86_64 in debug so emulators work
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -47,6 +55,26 @@ android {
             )
         }
     }
+
+    // ── 16 KB page-size alignment (required from Nov 2025 for Play Store) ──────
+    // Store .so files uncompressed so the OS can align them at runtime.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
+    // Exclude x86_64 from release builds — that ABI is emulator-only.
+    // Physical devices use arm64-v8a (all modern phones) or armeabi-v7a (older).
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64") // keep x86_64 for debug emulator
+            isUniversalApk = true
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
