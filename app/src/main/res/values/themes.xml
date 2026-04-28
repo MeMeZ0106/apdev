@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.SanzinKstore" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Day mode: warm cream + dark reds -->
@@ -12,14 +12,31 @@
         <item name="colorSecondaryContainer">@color/secondary_container</item>
         <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
 
-        <!-- Light status bar — dark icons on cream background -->
-        <item name="android:statusBarColor">@color/background</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <!-- Red status bar to match red toolbar — needs dark (light) icons = false -->
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:windowLightStatusBar">false</item>
 
         <item name="android:windowBackground">@color/background</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/on_surface</item>
         <item name="colorOutline">@color/outline</item>
+
+        <!-- Red toolbar for day mode -->
+        <item name="toolbarStyle">@style/Widget.App.Toolbar.Primary</item>
+        <item name="appBarLayoutStyle">@style/Widget.App.AppBarLayout.Primary</item>
+    </style>
+
+    <!-- Red toolbar style -->
+    <style name="Widget.App.Toolbar.Primary" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/primary</item>
+        <item name="titleTextColor">@color/on_primary</item>
+        <item name="subtitleTextColor">@color/on_primary</item>
+        <item name="navigationIconTint">@color/on_primary</item>
+    </style>
+
+    <!-- Red AppBarLayout (prevents white flash on scroll) -->
+    <style name="Widget.App.AppBarLayout.Primary" parent="Widget.Material3.AppBarLayout">
+        <item name="android:background">@color/primary</item>
     </style>
 
     <style name="RoundedSquareTop">
