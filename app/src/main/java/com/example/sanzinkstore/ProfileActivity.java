@@ -16,6 +16,15 @@ public class ProfileActivity extends AppCompatActivity {
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Set up toolbar with back arrow
+        setSupportActionBar(binding.toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+        binding.toolbar.setNavigationOnClickListener(v ->
+                getOnBackPressedDispatcher().onBackPressed());
+
         auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
 

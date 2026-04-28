@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "902665820500-ja7cvoh0tof3ef9893vud3ckdaq95puf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sanzinkstore",
+            "certificate_hash": "361d991503495af999eb454130629b5db4a58f74"
+          }
+        },
+        {
           "client_id": "902665820500-mevo35t2jh2nc7g5u7p4ra96tcftrr1l.apps.googleusercontent.com",
           "client_type": 3
         }

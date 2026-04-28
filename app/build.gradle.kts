@@ -32,11 +32,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // 16 KB alignment: limit ABIs compiled into the APK
-        ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
-        }
-
         // Inject Cloudinary values as BuildConfig constants
         buildConfigField("String", "CLOUDINARY_CLOUD_NAME",  "\"$cloudName\"")
         buildConfigField("String", "CLOUDINARY_API_KEY",     "\"$cloudApiKey\"")
@@ -44,9 +39,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            // Keep x86_64 in debug so emulators work
-        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -57,23 +49,13 @@ android {
     }
 
     // ── 16 KB page-size alignment (required from Nov 2025 for Play Store) ──────
-    // Store .so files uncompressed so the OS can align them at runtime.
+    // Store .so files uncompressed so the OS can align them to 16 KB at runtime.
     packaging {
         jniLibs {
             useLegacyPackaging = false
         }
     }
 
-    // Exclude x86_64 from release builds — that ABI is emulator-only.
-    // Physical devices use arm64-v8a (all modern phones) or armeabi-v7a (older).
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a", "armeabi-v7a", "x86_64") // keep x86_64 for debug emulator
-            isUniversalApk = true
-        }
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -112,7 +94,17 @@ dependencies {
     implementation(libs.play.services.auth)
 
     // Cloudinary (Media / Product image uploads)
-    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    // Exclude Fresco (Facebook image pipeline) – it ships with native .so files that are NOT
+    // aligned to 16 KB page boundaries (required by Google Play from Nov 2025 for Android 15+).
+    // This app only uses Cloudinary for uploads (MediaManager.upload); Picasso handles image
+    // display, so removing the Fresco image-pipeline has no functional impact.
+    implementation("com.cloudinary:cloudinary-android:3.0.2") {
+        exclude(group = "com.facebook.fresco")
+        exclude(group = "com.facebook.fresco", module = "animated-gif")
+        exclude(group = "com.facebook.fresco", module = "animated-webp")
+        exclude(group = "com.facebook.fresco", module = "imagepipeline-native")
+        exclude(group = "com.facebook.fresco", module = "nativeimagetranscoder")
+    }
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

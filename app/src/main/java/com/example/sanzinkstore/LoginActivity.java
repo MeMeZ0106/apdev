@@ -3,11 +3,13 @@ package com.example.sanzinkstore;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -19,29 +21,40 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
-
-    // Hardcoded seller credentials (shorthand for quick login)
-    private static final String ADMIN_EMAIL    = "admin@sanzinkstore.com";
-    private static final String ADMIN_KEYWORD  = "Admin";
+    private static final String TAG           = "LoginActivity";
+    private static final int    MODE_LOGIN    = 0;
+    private static final int    MODE_REGISTER = 1;
 
     private ActivityLoginBinding binding;
-    private FirebaseAuth auth;
-    private FirebaseFirestore db;
-    private GoogleSignInClient googleSignInClient;
+    private FirebaseAuth         auth;
+    private FirebaseFirestore    db;
+    private GoogleSignInClient   googleSignInClient;
+    private BottomSheetDialog    currentSheet;
 
-    // ── Modern replacement for deprecated startActivityForResult ────────────
+    // Track whether the Google launcher was triggered from Login or Register
+    private int    googleMode   = MODE_LOGIN;
+    private String pendingName  = "";
+    private String pendingEmail = "";
+
+    // ── Google Sign-In result handler ────────────────────────────────────────────
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -49,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
                         GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                 try {
                     GoogleSignInAccount account = task.getResult(ApiException.class);
-                    firebaseAuthWithGoogle(account.getIdToken());
+                    handleGoogleCredential(account);
                 } catch (ApiException e) {
                     setLoading(false);
                     Toast.makeText(this, "Google sign-in failed: " + e.getStatusCode(),
@@ -57,6 +70,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
     );
+
+    // ─────────────────────────────────────────────────────────────────────────────
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,155 +82,268 @@ public class LoginActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db   = FirebaseFirestore.getInstance();
 
-        // Auto-login: if a session already exists, skip the login screen
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            checkUserRoleAndNavigate(currentUser);
-            return;  // don't set up UI listeners — navigating away anyway
+        // Auto-login: skip screen if session exists
+        FirebaseUser current = auth.getCurrentUser();
+        if (current != null) {
+            checkRoleAndNavigate(current);
+            return;
         }
 
-        // Set up Google Sign-In for customers
+        // Google Sign-In client
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
+                .requestProfile()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        // Customer button → Google Sign-In
-        binding.googleSignInButton.setOnClickListener(v -> {
-            setLoading(true);
-            googleSignInLauncher.launch(googleSignInClient.getSignInIntent());
-        });
+        // ── Buttons ──────────────────────────────────────────────────────────────
+        binding.btnGuest.setOnClickListener(v -> navigateToMain(false, true));
+        binding.btnLogin.setOnClickListener(v -> showLoginSheet());
+        binding.btnRegister.setOnClickListener(v -> showRegisterSheet());
 
-        // Seller button → email / password login
-        binding.adminLoginButton.setOnClickListener(v -> adminLogin());
+        binding.btnAboutUs.setOnClickListener(v ->
+                showInfoDialog(getString(R.string.about_us_title),
+                               getString(R.string.about_us_content)));
+
+        binding.btnPrivacyPolicy.setOnClickListener(v ->
+                showInfoDialog(getString(R.string.privacy_policy_title),
+                               getString(R.string.privacy_policy_content)));
 
         setupImmersiveMode();
     }
 
-    // ── Seller login ─────────────────────────────────────────────────────────
+    // ─── Login Bottom Sheet ───────────────────────────────────────────────────────
 
-    private void adminLogin() {
-        String inputEmail = binding.adminEmail.getText() != null
-                ? binding.adminEmail.getText().toString().trim() : "";
-        String password = binding.adminPassword.getText() != null
-                ? binding.adminPassword.getText().toString().trim() : "";
+    private void showLoginSheet() {
+        currentSheet = new BottomSheetDialog(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_login, null);
+        currentSheet.setContentView(view);
 
-        if (TextUtils.isEmpty(inputEmail) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        TextInputLayout   tilEmail    = view.findViewById(R.id.tilEmail);
+        TextInputLayout   tilPassword = view.findViewById(R.id.tilPassword);
+        TextInputEditText etEmail     = view.findViewById(R.id.etEmail);
+        TextInputEditText etPassword  = view.findViewById(R.id.etPassword);
 
-        setLoading(true);
+        view.findViewById(R.id.btnSignIn).setOnClickListener(v -> {
+            String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
+            String pass  = etPassword.getText() != null ? etPassword.getText().toString() : "";
 
-        // Shorthand: typing "Admin" + "password" maps to the real admin email
-        String emailToUse = inputEmail.equalsIgnoreCase(ADMIN_KEYWORD)
-                ? ADMIN_EMAIL : inputEmail;
+            tilEmail.setError(null);
+            tilPassword.setError(null);
 
-        auth.signInWithEmailAndPassword(emailToUse, password)
-                .addOnSuccessListener(result -> {
-                    saveAdminToFirestore(result.getUser(), emailToUse);
+            boolean valid = true;
+            if (TextUtils.isEmpty(email))  { tilEmail.setError("Email is required");    valid = false; }
+            if (TextUtils.isEmpty(pass))   { tilPassword.setError("Password is required"); valid = false; }
+            if (!valid) return;
+
+            currentSheet.dismiss();
+            setLoading(true);
+            signInWithEmail(email, sha256(pass));
+        });
+
+        view.findViewById(R.id.btnGoogleSignIn).setOnClickListener(v -> {
+            googleMode   = MODE_LOGIN;
+            pendingName  = "";
+            pendingEmail = "";
+            currentSheet.dismiss();
+            setLoading(true);
+            googleSignInClient.signOut().addOnCompleteListener(t ->
+                    googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
+        });
+
+        currentSheet.show();
+    }
+
+    // ─── Register Bottom Sheet ────────────────────────────────────────────────────
+
+    private void showRegisterSheet() {
+        currentSheet = new BottomSheetDialog(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_register, null);
+        currentSheet.setContentView(view);
+
+        TextInputLayout   tilName    = view.findViewById(R.id.tilName);
+        TextInputLayout   tilEmail   = view.findViewById(R.id.tilEmail);
+        TextInputLayout   tilPass    = view.findViewById(R.id.tilPassword);
+        TextInputLayout   tilConfirm = view.findViewById(R.id.tilConfirmPassword);
+        TextInputEditText etName     = view.findViewById(R.id.etName);
+        TextInputEditText etEmail    = view.findViewById(R.id.etEmail);
+        TextInputEditText etPass     = view.findViewById(R.id.etPassword);
+        TextInputEditText etConfirm  = view.findViewById(R.id.etConfirmPassword);
+
+        view.findViewById(R.id.btnCreateAccount).setOnClickListener(v -> {
+            String name    = etName.getText()    != null ? etName.getText().toString().trim()    : "";
+            String email   = etEmail.getText()   != null ? etEmail.getText().toString().trim()   : "";
+            String pass    = etPass.getText()    != null ? etPass.getText().toString()           : "";
+            String confirm = etConfirm.getText() != null ? etConfirm.getText().toString()        : "";
+
+            tilName.setError(null); tilEmail.setError(null);
+            tilPass.setError(null); tilConfirm.setError(null);
+
+            boolean valid = true;
+            if (TextUtils.isEmpty(name))    { tilName.setError("Full name is required");    valid = false; }
+            if (TextUtils.isEmpty(email))   { tilEmail.setError("Email is required");       valid = false; }
+            if (pass.length() < 6)          { tilPass.setError("Min. 6 characters");        valid = false; }
+            if (!pass.equals(confirm))      { tilConfirm.setError("Passwords do not match"); valid = false; }
+            if (!valid) return;
+
+            currentSheet.dismiss();
+            setLoading(true);
+            registerWithEmail(name, email, sha256(pass));
+        });
+
+        view.findViewById(R.id.btnGoogleRegister).setOnClickListener(v -> {
+            googleMode   = MODE_REGISTER;
+            pendingName  = "";
+            pendingEmail = "";
+            currentSheet.dismiss();
+            setLoading(true);
+            googleSignInClient.signOut().addOnCompleteListener(t ->
+                    googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
+        });
+
+        currentSheet.show();
+    }
+
+    // ─── Email / Password auth ────────────────────────────────────────────────────
+
+    private void signInWithEmail(String email, String hashedPassword) {
+        auth.signInWithEmailAndPassword(email, hashedPassword)
+                .addOnSuccessListener(r -> checkRoleAndNavigate(r.getUser()))
+                .addOnFailureListener(e -> {
+                    setLoading(false);
+                    Toast.makeText(this, "Login failed: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                });
+    }
+
+    private void registerWithEmail(String name, String email, String hashedPassword) {
+        auth.createUserWithEmailAndPassword(email, hashedPassword)
+                .addOnSuccessListener(r -> saveUserProfile(r.getUser(), name, email, "email"))
+                .addOnFailureListener(e -> {
+                    setLoading(false);
+                    Toast.makeText(this, "Registration failed: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                });
+    }
+
+    // ─── Google auth ──────────────────────────────────────────────────────────────
+
+    private void handleGoogleCredential(GoogleSignInAccount account) {
+        pendingName  = account.getDisplayName() != null ? account.getDisplayName() : "";
+        pendingEmail = account.getEmail()        != null ? account.getEmail()        : "";
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+        auth.signInWithCredential(credential)
+                .addOnSuccessListener(r -> {
+                    FirebaseUser user = r.getUser();
+                    if (googleMode == MODE_REGISTER) {
+                        saveUserProfile(user, pendingName, pendingEmail, "google");
+                    } else {
+                        checkRoleAndNavigate(user);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    // Account might not exist yet → create it (first-run bootstrap)
-                    if (emailToUse.equals(ADMIN_EMAIL)) {
-                        bootstrapAdmin(emailToUse, password);
-                    } else {
-                        setLoading(false);
-                        Toast.makeText(this, "Login failed: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    /** Creates the admin Firebase account on first run. */
-    private void bootstrapAdmin(String email, String password) {
-        auth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener(result ->
-                        saveAdminToFirestore(result.getUser(), email))
-                .addOnFailureListener(e -> {
                     setLoading(false);
-                    Toast.makeText(this, "Admin setup failed: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Google auth failed: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
                 });
     }
 
-    /** Ensures the admin document exists in Firestore, then navigates. */
-    private void saveAdminToFirestore(FirebaseUser user, String email) {
-        if (user == null) { setLoading(false); return; }
-
-        Map<String, Object> adminData = new HashMap<>();
-        adminData.put("role",  "super_admin");
-        adminData.put("email", email);
-
-        db.collection("admins").document(user.getUid()).set(adminData)
-                .addOnCompleteListener(task -> {
-                    // Navigate regardless — Firestore might be offline
-                    navigateToMain(true);
-                });
-    }
-
-    // ── Google Sign-In (Customer) ─────────────────────────────────────────────
-
-    private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        auth.signInWithCredential(credential)
-                .addOnSuccessListener(result ->
-                        checkUserRoleAndNavigate(result.getUser()))
-                .addOnFailureListener(e -> {
-                    setLoading(false);
-                    Toast.makeText(this, "Authentication failed: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    // ── Role detection ────────────────────────────────────────────────────────
+    // ─── Firestore ────────────────────────────────────────────────────────────────
 
     /**
-     * Checks Firestore's `admins` collection.
-     * If the user's UID is there (or their email is the master admin), they go to seller view.
+     * Creates / overwrites the user profile in Firestore.
+     * isSeller defaults to false — only changed via admin tools.
      */
-    private void checkUserRoleAndNavigate(FirebaseUser user) {
+    private void saveUserProfile(FirebaseUser user, String name, String email, String provider) {
         if (user == null) { setLoading(false); return; }
 
-        // Fast-path: known admin email
-        if (ADMIN_EMAIL.equals(user.getEmail())) {
-            navigateToMain(true);
-            return;
-        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("displayName", !TextUtils.isEmpty(name)  ? name  : (user.getDisplayName() != null ? user.getDisplayName() : ""));
+        data.put("email",       !TextUtils.isEmpty(email) ? email : (user.getEmail() != null ? user.getEmail() : ""));
+        data.put("isSeller",    false);
+        data.put("provider",    provider);
+        data.put("createdAt",   new Date());
 
-        // Firestore lookup for any other email-based admins
-        db.collection("admins").document(user.getUid()).get()
-                .addOnCompleteListener(task -> {
-                    boolean isAdmin = task.isSuccessful()
-                            && task.getResult() != null
-                            && task.getResult().exists();
-                    navigateToMain(isAdmin);
+        db.collection("users").document(user.getUid())
+                .set(data)
+                .addOnCompleteListener(t -> navigateToMain(false, false));
+    }
+
+    /**
+     * Reads users/{uid}.isSeller from Firestore to decide the navigation target.
+     */
+    private void checkRoleAndNavigate(FirebaseUser user) {
+        if (user == null) { setLoading(false); return; }
+
+        db.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        // First login via Google without prior registration — create profile
+                        saveUserProfile(user,
+                                user.getDisplayName() != null ? user.getDisplayName() : "",
+                                user.getEmail() != null ? user.getEmail() : "",
+                                "google");
+                        return;
+                    }
+                    boolean isSeller = Boolean.TRUE.equals(doc.getBoolean("isSeller"));
+                    navigateToMain(isSeller, false);
+                })
+                .addOnFailureListener(e -> {
+                    setLoading(false);
+                    Toast.makeText(this, "Role check failed: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
                 });
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────────
+    // ─── Navigation ───────────────────────────────────────────────────────────────
 
-    private void navigateToMain(boolean isAdmin) {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+    private void navigateToMain(boolean isAdmin, boolean isGuest) {
+        setLoading(false);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("IS_ADMIN", isAdmin);
+        intent.putExtra("IS_GUEST", isGuest);
         startActivity(intent);
         finish();
     }
 
-    // ── UI helpers ────────────────────────────────────────────────────────────
+    // ─── Utility ──────────────────────────────────────────────────────────────────
+
+    /** Returns the SHA-256 hex digest of the given text. */
+    private static String sha256(String text) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(text.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(hash.length * 2);
+            for (byte b : hash) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            return text; // should never happen on Android
+        }
+    }
+
+    private void showInfoDialog(String title, String message) {
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Close", null)
+                .show();
+    }
 
     private void setLoading(boolean loading) {
-        binding.googleSignInButton.setEnabled(!loading);
-        binding.adminLoginButton.setEnabled(!loading);
+        binding.btnGuest.setEnabled(!loading);
+        binding.btnLogin.setEnabled(!loading);
+        binding.btnRegister.setEnabled(!loading);
         binding.loadingIndicator.setVisibility(loading ? View.VISIBLE : View.GONE);
     }
 
+    // ─── Immersive mode ───────────────────────────────────────────────────────────
+
     private void setupImmersiveMode() {
-        WindowInsetsControllerCompat c =
-                new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
-        c.setSystemBarsBehavior(
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView())
+                .setSystemBarsBehavior(
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         hideSystemUI();
     }
 

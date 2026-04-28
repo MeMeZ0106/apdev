@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private List<CartItem> cart;
     private double totalAmount = 0;
     private boolean isAdmin = false;
+    private boolean isGuest = false;
     private String csvContentToSave = "";
     private PayMongoService payMongoService;
     private static final String CART_PREFS = "cart_prefs";
@@ -118,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         CloudinaryHelper.init(this);
         
         isAdmin = getIntent().getBooleanExtra("IS_ADMIN", false);
+        isGuest = getIntent().getBooleanExtra("IS_GUEST", false);
         Log.d(TAG, "Starting MainActivity. Is Admin: " + isAdmin);
 
         // Restore cart from SharedPreferences on a background thread
@@ -293,6 +295,10 @@ public class MainActivity extends AppCompatActivity {
             binding.bottomNavigation.setVisibility(View.VISIBLE);
             binding.bottomPanel.setVisibility(View.GONE);
             binding.fabCart.setOnClickListener(v -> handleCheckout());
+            // Visual hint for guests that the cart requires login
+            if (isGuest) {
+                binding.toolbar.setSubtitle("Browsing as Guest — Login to buy");
+            }
             binding.toolbar.setTitle(getString(R.string.app_name));
             
             binding.navigationView.getMenu().clear();
@@ -392,6 +398,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void handleCheckout() {
+        if (isGuest) {
+            showGuestPurchaseBlockedDialog();
+            return;
+        }
         if (cart.isEmpty()) {
             Toast.makeText(this, "Your cart is empty!", Toast.LENGTH_SHORT).show();
             return;
@@ -402,6 +412,19 @@ public class MainActivity extends AppCompatActivity {
                 .replace(android.R.id.content, cartFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    /** Shown when a guest tries to purchase anything. */
+    private void showGuestPurchaseBlockedDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Login Required")
+                .setMessage(getString(R.string.guest_purchase_blocked))
+                .setPositiveButton("Login", (d, w) -> {
+                    startActivity(new Intent(this, LoginActivity.class));
+                    finish();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void initiateOnlinePayment(String type) {
@@ -651,6 +674,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addToCart(Product product) {
+        if (isGuest) {
+            showGuestPurchaseBlockedDialog();
+            return;
+        }
         for (CartItem item : cart) {
             if (item.getProduct().getId().equals(product.getId())) {
                 item.setQuantity(item.getQuantity() + 1);

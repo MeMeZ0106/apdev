@@ -1,150 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:background="?attr/colorSurface">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <!-- ── Center content group ── -->
+    <LinearLayout
+        android:id="@+id/llCenter"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="32dp">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/llBottomLinks"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.42">
 
         <!-- Logo -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/logo"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:layout_marginTop="48dp"
-            android:padding="4dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:src="@drawable/logo2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:padding="4dp" />
 
-        <!-- App title -->
+        <!-- Title -->
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:text="@string/login_title"
             android:textAppearance="?attr/textAppearanceHeadlineMedium"
             android:textColor="?attr/colorOnSurface"
-            android:letterSpacing="0.1"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/logo" />
+            android:letterSpacing="0.05" />
 
-        <!-- Customer: Google Sign-In -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/googleSignInButton"
-            style="@style/Widget.Material3.Button.TonalButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
-            android:padding="16dp"
-            android:text="@string/customer_login_button"
-            android:textColor="?attr/colorOnPrimary"
-            app:backgroundTint="?attr/colorPrimary"
-            app:icon="@android:drawable/ic_menu_search"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title"
-            app:layout_constraintWidth_max="400dp"
-            app:cornerRadius="8dp" />
-
-        <!-- Divider -->
-        <View
-            android:id="@+id/divider"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="40dp"
-            android:background="?attr/colorOutline"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/googleSignInButton" />
-
-        <!-- Seller section label -->
+        <!-- Subtitle -->
         <TextView
-            android:id="@+id/adminLabel"
+            android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="@string/seller_access"
-            android:textAppearance="?attr/textAppearanceLabelLarge"
-            android:textColor="?attr/colorPrimary"
-            android:letterSpacing="0.05"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/divider" />
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="32dp"
+            android:text="@string/login_subtitle"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
-        <!-- Seller email field -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/adminEmailLayout"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
+        <!-- Continue as Guest -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGuest"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="@string/seller_email_hint"
-            app:hintTextColor="?attr/colorPrimary"
-            app:boxStrokeColor="?attr/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/adminLabel"
-            app:layout_constraintWidth_max="400dp">
+            android:text="@string/btn_guest"
+            android:textColor="?attr/colorOnSurface"
+            android:padding="14dp"
+            app:strokeColor="?attr/colorOutline"
+            app:cornerRadius="12dp" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/adminEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <!-- Divider -->
+        <TextView
+            android:id="@+id/tvDivider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/divider_or"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textAppearance="?attr/textAppearanceLabelMedium" />
 
-        <!-- Seller password field -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/adminPasswordLayout"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
+        <!-- Login -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_login"
+            android:textColor="?attr/colorOnPrimary"
+            android:padding="14dp"
+            app:backgroundTint="?attr/colorPrimary"
+            app:cornerRadius="12dp" />
+
+        <!-- Register -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRegister"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:hint="@string/seller_password_hint"
-            app:hintTextColor="?attr/colorPrimary"
-            app:boxStrokeColor="?attr/colorPrimary"
-            app:endIconMode="password_toggle"
-            app:endIconTint="?attr/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/adminEmailLayout"
-            app:layout_constraintWidth_max="400dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/adminPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Seller login button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/adminLoginButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="32dp"
-            android:padding="16dp"
-            android:text="@string/seller_login_button"
-            android:textColor="?attr/colorOnPrimary"
-            app:backgroundTint="?attr/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/adminPasswordLayout"
-            app:layout_constraintVertical_bias="0.0"
-            app:layout_constraintWidth_max="400dp"
-            app:cornerRadius="8dp" />
+            android:text="@string/btn_register"
+            android:textColor="?attr/colorPrimary"
+            android:padding="14dp"
+            app:strokeColor="?attr/colorPrimary"
+            app:cornerRadius="12dp" />
 
         <!-- Loading indicator -->
         <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -154,10 +107,47 @@
             android:layout_marginTop="16dp"
             android:indeterminate="true"
             android:visibility="gone"
-            app:indicatorColor="?attr/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/adminLoginButton" />
+            app:indicatorColor="?attr/colorPrimary" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+    </LinearLayout>
+
+    <!-- ── Bottom links: About Us | Privacy Policy ── -->
+    <LinearLayout
+        android:id="@+id/llBottomLinks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAboutUs"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_about_us"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="|"
+            android:textColor="?attr/colorOutline"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrivacyPolicy"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_privacy_policy"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

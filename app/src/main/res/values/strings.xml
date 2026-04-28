@@ -11,7 +11,34 @@
     <string name="proceeding_to_checkout">Proceeding to checkout for ₱%1$.2f</string>
     <string name="default_web_client_id" translatable="false">902665820500-mevo35t2jh2nc7g5u7p4ra96tcftrr1l.apps.googleusercontent.com</string>
 
+    <!-- Login screen -->
     <string name="login_title">SanZin K-Store</string>
+    <string name="login_subtitle">Your local K-goods store</string>
+    <string name="btn_guest">Continue as Guest</string>
+    <string name="btn_login">Login</string>
+    <string name="btn_register">Register</string>
+    <string name="btn_about_us">About Us</string>
+    <string name="btn_privacy_policy">Privacy Policy</string>
+    <string name="divider_or">— OR —</string>
+
+    <!-- Login dialog -->
+    <string name="login_dialog_title">Welcome Back</string>
+    <string name="hint_email">Email Address</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_sign_in">Sign In</string>
+    <string name="btn_sign_in_google">Continue with Google</string>
+
+    <!-- Register dialog -->
+    <string name="register_dialog_title">Create Account</string>
+    <string name="hint_full_name">Full Name</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="btn_create_account">Create Account</string>
+    <string name="btn_register_google">Register with Google</string>
+
+    <!-- Guest blocked message -->
+    <string name="guest_purchase_blocked">You need an account to make purchases.\nPlease Login or Register.</string>
+
+    <!-- Seller access (legacy) -->
     <string name="login_continue_google">CONTINUE WITH GOOGLE</string>
     <string name="seller_access">Seller Portal</string>
     <string name="seller_email_hint">Seller Email</string>
@@ -19,6 +46,15 @@
     <string name="seller_login_button">LOGIN AS SELLER</string>
     <string name="customer_login_button">CONTINUE AS CUSTOMER</string>
 
+    <!-- About Us -->
+    <string name="about_us_title">About Us</string>
+    <string name="about_us_content">Welcome to SanZin K-Store! 🇰🇷\n\nWe are a passionate local store dedicated to bringing you the finest Korean goods, meals, and beverages right to your neighborhood.\n\nFrom authentic ramen and tteokbokki to refreshing milk teas and fruit sodas — everything is prepared with care and quality ingredients.\n\nFounded in 2024, SanZin K-Store strives to make Korean culture accessible and enjoyable for everyone.\n\nThank you for supporting a local business! ❤️\n\nContact us:\nsanzinkstore@gmail.com</string>
+
+    <!-- Privacy Policy -->
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_policy_content">Privacy Policy — SanZin K-Store\nLast updated: April 2026\n\n1. Information We Collect\nWe collect your name, email address, and order history when you create an account or place an order.\n\n2. How We Use Your Information\n• To process and fulfill your orders\n• To send order confirmations and updates\n• To improve our products and services\n• To respond to customer support requests\n\n3. Data Storage\nYour data is stored securely using Google Firebase services. We do not sell or share your personal information with third parties.\n\n4. Passwords\nPasswords are hashed using SHA-256 before transmission and are never stored in plain text.\n\n5. Your Rights\nYou may request deletion of your account and associated data at any time by contacting us at sanzinkstore@gmail.com.\n\n6. Changes to This Policy\nWe may update this policy periodically. Continued use of the app constitutes acceptance of the updated policy.\n\nFor questions, contact: sanzinkstore@gmail.com</string>
+
+    <!-- Inventory -->
     <string name="inventory_title">Store Inventory</string>
     <string name="update_inventory">UPDATE INVENTORY</string>
     <string name="no_image_preview">No Image Preview</string>
