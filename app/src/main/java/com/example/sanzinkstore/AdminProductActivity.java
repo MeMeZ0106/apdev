@@ -82,9 +82,35 @@ public class AdminProductActivity extends AppCompatActivity {
     }
 
     private void setupCategoryDropdown() {
-        String[] categories = {"Food", "Drinks", "Snacks", "Deals"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categories);
-        binding.editCategory.setAdapter(adapter);
+        String[] mainCategories = {"Goods", "Meals", "Beverages"};
+        ArrayAdapter<String> mainAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, mainCategories);
+        binding.editCategory.setAdapter(mainAdapter);
+
+        binding.editCategory.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedMain = mainCategories[position];
+            updateSubCategoryDropdown(selectedMain);
+        });
+    }
+
+    private void updateSubCategoryDropdown(String mainCategory) {
+        String[] subCategories;
+        switch (mainCategory) {
+            case "Goods":
+                subCategories = new String[]{"All", "Ramen", "Buldak", "Seaweed", "Teokbokki", "Drinks"};
+                break;
+            case "Meals":
+                subCategories = new String[]{"All", "Buldak", "K-Ramen", "Cheese Ramen", "Samyang Omolette", "Rice Meals", "Stations Specials", "Side Dish"};
+                break;
+            case "Beverages":
+                subCategories = new String[]{"All", "Milktea", "Fruit Soda", "Korean Abrica"};
+                break;
+            default:
+                subCategories = new String[]{"All"};
+                break;
+        }
+        ArrayAdapter<String> subAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, subCategories);
+        binding.editSubCategory.setAdapter(subAdapter);
+        binding.editSubCategory.setText("All", false); // Default to All
     }
 
     private void loadProductData() {
@@ -98,6 +124,10 @@ public class AdminProductActivity extends AppCompatActivity {
                         binding.editDescription.setText(product.getDescription());
                         binding.editPrice.setText(String.valueOf(product.getPrice()));
                         binding.editCategory.setText(product.getCategory(), false);
+                        
+                        updateSubCategoryDropdown(product.getCategory());
+                        binding.editSubCategory.setText(product.getSubCategory(), false);
+                        
                         binding.switchAvailable.setChecked(product.isAvailable());
                         currentImageUrl = product.getImageUrl();
                         binding.editImageUrl.setText(currentImageUrl);
@@ -117,6 +147,7 @@ public class AdminProductActivity extends AppCompatActivity {
         String name = binding.editName.getText().toString().trim();
         String priceStr = binding.editPrice.getText().toString().trim();
         String category = binding.editCategory.getText().toString().trim();
+        String subCategory = binding.editSubCategory.getText().toString().trim();
         String manualUrl = binding.editImageUrl.getText().toString().trim();
 
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(priceStr) || TextUtils.isEmpty(category)) {
@@ -198,6 +229,7 @@ public class AdminProductActivity extends AppCompatActivity {
         String description = binding.editDescription.getText().toString().trim();
         String priceStr = binding.editPrice.getText().toString().trim();
         String category = binding.editCategory.getText().toString().trim();
+        String subCategory = binding.editSubCategory.getText().toString().trim();
 
         if (imageUrl == null) imageUrl = "";
 
@@ -214,7 +246,7 @@ public class AdminProductActivity extends AppCompatActivity {
         binding.btnSave.setEnabled(false);
         binding.uploadProgress.setVisibility(View.VISIBLE);
 
-        Product product = new Product(productId, name, description, price, imageUrl, category, binding.switchAvailable.isChecked());
+        Product product = new Product(productId, name, description, price, imageUrl, category, subCategory, binding.switchAvailable.isChecked());
 
         Task<Void> task;
         if (productId == null) {

@@ -1,10 +1,12 @@
 package com.example.sanzinkstore;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,6 +24,7 @@ import java.util.Locale;
 
 public class LogsActivity extends AppCompatActivity {
 
+    private static final String TAG = "LogsActivity";
     private RecyclerView rvLogs;
     private FirebaseFirestore db;
     private List<Order> orders = new ArrayList<>();
@@ -45,16 +48,33 @@ public class LogsActivity extends AppCompatActivity {
     }
 
     private void loadLogs() {
+        Log.d(TAG, "Loading transaction logs...");
         db.collection("orders")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    orders.clear();
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Order order = doc.toObject(Order.class);
-                        orders.add(order);
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Error fetching logs", error);
+                        Toast.makeText(this, "Failed to load logs: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    adapter.notifyDataSetChanged();
+
+                    if (value != null) {
+                        orders.clear();
+                        Log.d(TAG, "Logs received: " + value.size() + " orders");
+                        for (QueryDocumentSnapshot doc : value) {
+                            try {
+                                Order order = doc.toObject(Order.class);
+                                orders.add(order);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing order: " + doc.getId(), e);
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                        
+                        if (orders.isEmpty()) {
+                            Toast.makeText(this, "No transaction history found.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 });
     }
 
@@ -75,19 +95,36 @@ public class LogsActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
             Order order = orders.get(position);
-            holder.tvOrderId.setText("Order: " + order.getTimestamp());
-            holder.tvTimestamp.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date(order.getTimestamp())));
+            holder.tvOrderId.setText("Order Date: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(order.getTimestamp())));
+            holder.tvTimestamp.setText("Time: " + new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date(order.getTimestamp())));
             
             StringBuilder itemsStr = new StringBuilder();
-            for (CartItem item : order.getItems()) {
-                itemsStr.append(item.getQuantity()).append("x ").append(item.getProduct().getName()).append(", ");
+            if (order.getItems() != null) {
+                for (CartItem item : order.getItems()) {
+                    if (item.getProduct() != null) {
+                        itemsStr.append(item.getQuantity()).append("x ").append(item.getProduct().getName()).append(", ");
+                    }
+                }
             }
             if (itemsStr.length() > 2) itemsStr.setLength(itemsStr.length() - 2);
+            else itemsStr.append("No items listed");
+            
             holder.tvItems.setText(itemsStr.toString());
             
-            holder.tvTotal.setText(String.format("PHP %.2f", order.getTotalAmount()));
-            holder.tvStatus.setText(order.isPaid() ? "PAID" : "UNPAID");
-            holder.tvStatus.setTextColor(order.isPaid() ? 0xFF4CAF50 : 0xFFF44336);
+            holder.tvTotal.setText(String.format(Locale.getDefault(), "Total: PHP %.2f", order.getTotalAmount()));
+            
+            String status = order.getStatus() != null ? order.getStatus() : "PENDING";
+            boolean isPaid = order.isPaid();
+            
+            holder.tvStatus.setText(status + (isPaid ? " (PAID)" : " (UNPAID)"));
+            
+            if (isPaid) {
+                holder.tvStatus.setTextColor(0xFF4CAF50); // Green
+            } else if ("CANCELLED".equals(status)) {
+                holder.tvStatus.setTextColor(0xFFF44336); // Red
+            } else {
+                holder.tvStatus.setTextColor(0xFFFF9800); // Orange
+            }
         }
 
         @Override

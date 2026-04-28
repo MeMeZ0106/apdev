@@ -27,6 +27,23 @@
             tools:src="@drawable/logo2" />
 
         <TextView
+            android:id="@+id/tvUnavailable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#80000000"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="UNAVAILABLE"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/productImage"
+            app:layout_constraintEnd_toEndOf="@id/productImage"
+            app:layout_constraintStart_toStartOf="@id/productImage"
+            app:layout_constraintTop_toTopOf="@id/productImage" />
+
+        <TextView
             android:id="@+id/productName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,6 +84,18 @@
             app:cornerRadius="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchAvailability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

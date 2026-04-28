@@ -1,12 +1,10 @@
 package com.example.sanzinkstore;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,9 +13,6 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sanzinkstore.adapter.ProductAdapter;
@@ -39,9 +34,13 @@ public class ProductListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ProductAdapter adapter;
     private ChipGroup categoryChipGroup;
+    private ChipGroup subCategoryChipGroup;
     private List<Product> allProducts = new ArrayList<>();
     private List<Product> productList = new ArrayList<>();
     private FirebaseFirestore db;
+
+    private String selectedTag = "Goods";
+    private String selectedSubTag = "All";
 
     public static ProductListFragment newInstance(String category, boolean isAdmin) {
         ProductListFragment fragment = new ProductListFragment();
@@ -60,7 +59,6 @@ public class ProductListFragment extends Fragment {
             isAdmin = getArguments().getBoolean(ARG_IS_ADMIN);
         }
         db = FirebaseFirestore.getInstance();
-        productList = new ArrayList<>();
     }
 
     @Nullable
@@ -69,64 +67,52 @@ public class ProductListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_product_list, container, false);
         recyclerView = view.findViewById(R.id.recyclerView);
         categoryChipGroup = view.findViewById(R.id.categoryChipGroup);
+        subCategoryChipGroup = view.findViewById(R.id.subCategoryChipGroup);
 
-        int spanCount = isAdmin ? 3 : 2; // Seller gets more density, Customer gets Kiosk style
+        int spanCount = isAdmin ? 3 : 2;
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), spanCount);
         recyclerView.setLayoutManager(layoutManager);
         
         adapter = new ProductAdapter(productList, isAdmin, product -> {
-            if (isAdmin) {
-                // If it's a seller, we want to add to cart, not necessarily edit product
-                // But the user mentioned "Inventory should allow adding/editing"
-                // Let's make it so clicking in the Main grid adds to cart,
-                // and clicking in the Inventory activity edits.
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).addToCart(product);
-                }
-            } else {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).addToCart(product);
-                }
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).addToCart(product);
             }
         });
         
         recyclerView.setAdapter(adapter);
+        setupMainTags();
         loadProducts();
 
         return view;
     }
 
-    private void setupCategories(List<Product> products) {
-        if (categoryChipGroup == null) return;
+    private void setupMainTags() {
+        String[] tags = {"Goods", "Meals", "Beverages"};
         categoryChipGroup.removeAllViews();
         
-        Set<String> categories = new HashSet<>();
-        categories.add("All");
-        for (Product p : products) {
-            if (p.getCategory() != null) categories.add(p.getCategory());
-        }
-
-        for (String cat : categories) {
+        for (String tag : tags) {
             Chip chip = new Chip(getContext());
-            chip.setText(cat);
+            chip.setText(tag);
             chip.setCheckable(true);
             chip.setCheckedIconVisible(false);
-            
-            // Custom Styling for Matte Black & Super White Grey
             chip.setChipBackgroundColorResource(R.color.background);
             chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_background));
             chip.setChipStrokeColorResource(R.color.outline);
             chip.setChipStrokeWidth(2f);
-            
-            if (cat.equals("All")) {
+
+            if (tag.equals(selectedTag)) {
                 chip.setChecked(true);
                 chip.setChipBackgroundColorResource(R.color.primary);
                 chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_primary));
+                setupSubTags(tag);
             }
 
             chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (isChecked) {
-                    filterProducts(cat);
+                    selectedTag = tag;
+                    selectedSubTag = "All";
+                    setupSubTags(tag);
+                    filterProducts();
                     chip.setChipBackgroundColorResource(R.color.primary);
                     chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_primary));
                 } else {
@@ -138,64 +124,104 @@ public class ProductListFragment extends Fragment {
         }
     }
 
-    private void filterProducts(String category) {
-        productList.clear();
-        if (category.equals("All")) {
-            productList.addAll(allProducts);
-        } else {
-            for (Product p : allProducts) {
-                if (category.equals(p.getCategory())) {
-                    productList.add(p);
+    private void setupSubTags(String mainTag) {
+        String[] subTags;
+        switch (mainTag) {
+            case "Goods":
+                subTags = new String[]{"All", "Ramen", "Buldak", "Seaweed", "Teokbokki", "Drinks"};
+                break;
+            case "Meals":
+                subTags = new String[]{"All", "Buldak", "K-Ramen", "Cheese Ramen", "Samyang Omolette", "Rice Meals", "Stations Specials", "Side Dish"};
+                break;
+            case "Beverages":
+                subTags = new String[]{"All", "Milktea", "Fruit Soda", "Korean Abrica"};
+                break;
+            default:
+                subTags = new String[]{"All"};
+                break;
+        }
+
+        subCategoryChipGroup.removeAllViews();
+        for (String subTag : subTags) {
+            Chip chip = new Chip(getContext());
+            chip.setText(subTag);
+            chip.setCheckable(true);
+            chip.setCheckedIconVisible(false);
+            chip.setChipBackgroundColorResource(R.color.surface_variant);
+            chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_surface_variant));
+            
+            if (subTag.equals(selectedSubTag)) {
+                chip.setChecked(true);
+                chip.setChipBackgroundColorResource(R.color.primary_container);
+                chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_primary_container));
+            }
+
+            chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    selectedSubTag = subTag;
+                    filterProducts();
+                    chip.setChipBackgroundColorResource(R.color.primary_container);
+                    chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_primary_container));
+                } else {
+                    chip.setChipBackgroundColorResource(R.color.surface_variant);
+                    chip.setTextColor(ContextCompat.getColor(getContext(), R.color.on_surface_variant));
                 }
+            });
+            subCategoryChipGroup.addView(chip);
+        }
+    }
+
+    private void filterProducts() {
+        productList.clear();
+        for (Product p : allProducts) {
+            boolean tagMatch = selectedTag.equals(p.getCategory());
+            boolean subTagMatch = selectedSubTag.equals("All") || selectedSubTag.equals(p.getSubCategory());
+            
+            if (tagMatch && subTagMatch) {
+                productList.add(p);
             }
         }
         adapter.notifyDataSetChanged();
     }
 
     private void loadProducts() {
-        Log.d(TAG, "Loading products: Instant load dummy data first.");
-        
-        // INSTANT LOAD: Ensure screen is never empty, even without internet
         allProducts.clear();
         addDummyProducts();
-        setupCategories(allProducts);
-        filterProducts("All");
+        filterProducts();
 
-        // ASYNC LOAD: Fetch real data from Firestore with a timeout-aware listener
         db.collection("products")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.e(TAG, "Firestore listen failed. Continuing with dummy data.", error);
+                        Log.e(TAG, "Firestore listen failed.", error);
                         return;
                     }
 
                     if (value != null && !value.isEmpty()) {
-                        Log.d(TAG, "Firestore returned " + value.size() + " products. Replacing dummy data.");
-                        allProducts.clear(); // Clear dummy data only when real data arrives
+                        allProducts.clear();
                         for (QueryDocumentSnapshot document : value) {
                             Product product = document.toObject(Product.class);
                             product.setId(document.getId());
                             allProducts.add(product);
                         }
-                        setupCategories(allProducts);
-                        filterProducts("All");
-                    } else {
-                        Log.d(TAG, "Firestore collection is empty. Staying with dummy data.");
+                        filterProducts();
                     }
                 });
     }
 
     private void addDummyProducts() {
-        allProducts.add(new Product("1", "Milktea Classic", "Sweet milktea", 85.0, "", "Milktea", true));
-        allProducts.add(new Product("2", "Okinawa", "Brown sugar milktea", 95.0, "", "Milktea", true));
-        allProducts.add(new Product("3", "Wintermelon", "Refreshing milktea", 90.0, "", "Milktea", true));
-        allProducts.add(new Product("4", "Blueberry Soda", "Fizzy drink", 65.0, "", "Fruit Soda", true));
-        allProducts.add(new Product("5", "Strawberry Soda", "Berry flavor", 65.0, "", "Fruit Soda", true));
-        allProducts.add(new Product("6", "Green Apple Soda", "Tart and sweet", 65.0, "", "Fruit Soda", true));
-        allProducts.add(new Product("7", "Fries", "Crispy potato", 45.0, "", "Food", true));
-        allProducts.add(new Product("8", "Burger", "Juicy beef", 75.0, "", "Food", true));
-        allProducts.add(new Product("9", "Popcorn", "Butter flavor", 35.0, "", "Snacks", true));
-        allProducts.add(new Product("10", "Nachos", "Cheese dip", 55.0, "", "Snacks", true));
-        allProducts.add(new Product("11", "Duo Deal", "Burger and Fries", 110.0, "", "Deals", true));
+        // Goods
+        allProducts.add(new Product("G1", "Shin Ramyun", "Classic Korean Ramen", 65.0, "", "Goods", "Ramen", true));
+        allProducts.add(new Product("G2", "Buldak Original", "Spicy Chicken Noodles", 85.0, "", "Goods", "Buldak", true));
+        allProducts.add(new Product("G3", "Roasted Seaweed", "Crispy snack", 35.0, "", "Goods", "Seaweed", true));
+        
+        // Meals
+        allProducts.add(new Product("M1", "Beef Bulgogi Rice", "Tender beef meal", 145.0, "", "Meals", "Rice Meals", true));
+        allProducts.add(new Product("M2", "Cheese Ramyun", "Creamy noodles", 95.0, "", "Meals", "Cheese Ramen", true));
+        allProducts.add(new Product("M3", "Kimchi", "Traditional side dish", 25.0, "", "Meals", "Side Dish", true));
+
+        // Beverages
+        allProducts.add(new Product("B1", "Okinawa Milktea", "Brown sugar milktea", 95.0, "", "Beverages", "Milktea", true));
+        allProducts.add(new Product("B2", "Strawberry Soda", "Fizzy berry drink", 65.0, "", "Beverages", "Fruit Soda", true));
+        allProducts.add(new Product("B3", "Korean Coffee", "Iced abrica coffee", 75.0, "", "Beverages", "Korean Abrica", false));
     }
 }

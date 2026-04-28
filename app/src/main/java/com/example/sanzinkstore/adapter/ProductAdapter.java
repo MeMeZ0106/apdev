@@ -23,6 +23,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public interface OnProductClickListener {
         void onProductClick(Product product);
+        default void onAvailabilityChanged(Product product, boolean isAvailable) {}
     }
 
     public ProductAdapter(List<Product> products, boolean isAdmin, OnProductClickListener listener) {
@@ -70,22 +71,46 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             binding.productName.setText(product.getName());
             binding.productPrice.setText(String.format("₱%.2f", product.getPrice()));
             
+            // Availability Logic
+            if (product.isAvailable()) {
+                binding.tvUnavailable.setVisibility(View.GONE);
+                binding.addToCartButton.setEnabled(true);
+                binding.productImage.setColorFilter(null);
+                binding.productImage.setAlpha(1.0f);
+            } else {
+                binding.tvUnavailable.setVisibility(View.VISIBLE);
+                binding.addToCartButton.setEnabled(false);
+                ColorMatrix matrix = new ColorMatrix();
+                matrix.setSaturation(0);
+                binding.productImage.setColorFilter(new ColorMatrixColorFilter(matrix));
+                binding.productImage.setAlpha(0.5f);
+            }
+
             if (isAdmin) {
                 // Seller View: Show small images, category-coded backgrounds
                 binding.productImage.setVisibility(View.VISIBLE);
-                // Adjust height for POS style grid (smaller)
+                // Adjust height for grid style (smaller)
                 ViewGroup.LayoutParams params = binding.productImage.getLayoutParams();
-                params.height = (int) (80 * itemView.getContext().getResources().getDisplayMetrics().density);
+                params.height = (int) (100 * itemView.getContext().getResources().getDisplayMetrics().density);
                 binding.productImage.setLayoutParams(params);
                 
                 int bgColor = getCategoryColor(product.getCategory());
                 binding.getRoot().setCardBackgroundColor(bgColor);
                 
-                // Set text colors to black for readability on light backgrounds
-                binding.productName.setTextColor(Color.BLACK);
-                binding.productPrice.setTextColor(Color.DKGRAY);
+                // Fix: Use theme-aware colors instead of hardcoded Black/DkGray
+                int textColor = ContextCompat.getColor(itemView.getContext(), R.color.on_surface);
+                binding.productName.setTextColor(textColor);
+                binding.productPrice.setTextColor(textColor);
                 
                 binding.addToCartButton.setVisibility(View.GONE);
+                binding.switchAvailability.setVisibility(View.VISIBLE);
+                
+                // Set switch state without triggering listener
+                binding.switchAvailability.setOnCheckedChangeListener(null);
+                binding.switchAvailability.setChecked(product.isAvailable());
+                binding.switchAvailability.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    listener.onAvailabilityChanged(product, isChecked);
+                });
                 
                 if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
                     Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.logo2).into(binding.productImage);
@@ -93,33 +118,31 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     binding.productImage.setImageResource(R.drawable.logo2);
                 }
 
-                binding.getRoot().setOnClickListener(v -> listener.onProductClick(product));
+                binding.getRoot().setOnClickListener(v -> {
+                    if (product.isAvailable()) {
+                        listener.onProductClick(product);
+                    }
+                });
             } else {
-                // Customer View: Show images, standard branding
+                // Customer View: Use theme-aware colors instead of hardcoded Black/Neon Pink
                 binding.productImage.setVisibility(View.VISIBLE);
-                binding.getRoot().setCardBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
-                binding.productName.setTextColor(Color.WHITE);
-                binding.productPrice.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.neon_pink));
+                
+                int cardBg = ContextCompat.getColor(itemView.getContext(), R.color.surface);
+                int textColor = ContextCompat.getColor(itemView.getContext(), R.color.on_surface);
+                int priceColor = ContextCompat.getColor(itemView.getContext(), R.color.primary); // Use brand color for price
+                
+                binding.getRoot().setCardBackgroundColor(cardBg);
+                binding.productName.setTextColor(textColor);
+                binding.productPrice.setTextColor(priceColor);
 
-                float baseAlpha = 1.0f;
+                float baseAlpha = product.isAvailable() ? 1.0f : 0.5f;
                 if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
                     Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.logo2).into(binding.productImage);
                 } else {
                     binding.productImage.setImageResource(R.drawable.logo2);
-                    baseAlpha = 0.5f;
+                    baseAlpha *= 0.5f;
                 }
-
-                if (product.isAvailable()) {
-                    binding.addToCartButton.setEnabled(true);
-                    binding.productImage.setColorFilter(null);
-                    binding.productImage.setAlpha(baseAlpha);
-                } else {
-                    binding.addToCartButton.setEnabled(false);
-                    ColorMatrix matrix = new ColorMatrix();
-                    matrix.setSaturation(0);
-                    binding.productImage.setColorFilter(new ColorMatrixColorFilter(matrix));
-                    binding.productImage.setAlpha(baseAlpha * 0.6f);
-                }
+                binding.productImage.setAlpha(baseAlpha);
 
                 binding.addToCartButton.setVisibility(View.VISIBLE);
                 binding.getRoot().setOnClickListener(v -> {
@@ -127,7 +150,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                         listener.onProductClick(product);
                     }
                 });
-                binding.addToCartButton.setOnClickListener(v -> listener.onProductClick(product));
+                binding.addToCartButton.setOnClickListener(v -> {
+                    if (product.isAvailable()) {
+                        listener.onProductClick(product);
+                    }
+                });
             }
         }
 
@@ -135,18 +162,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             if (category == null) return ContextCompat.getColor(itemView.getContext(), R.color.cat_default);
             
             switch (category.toLowerCase()) {
-                case "milktea":
-                case "milk tea":
+                case "goods":
                     return ContextCompat.getColor(itemView.getContext(), R.color.cat_milktea);
-                case "fruit soda":
-                case "soda":
-                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_fruit_soda);
-                case "food":
+                case "meals":
                     return ContextCompat.getColor(itemView.getContext(), R.color.cat_food);
-                case "snacks":
-                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_snacks);
-                case "deals":
-                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_deals);
+                case "beverages":
+                    return ContextCompat.getColor(itemView.getContext(), R.color.cat_fruit_soda);
                 default:
                     return ContextCompat.getColor(itemView.getContext(), R.color.cat_default);
             }
