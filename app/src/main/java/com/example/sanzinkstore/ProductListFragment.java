@@ -185,43 +185,21 @@ public class ProductListFragment extends Fragment {
     }
 
     private void loadProducts() {
-        allProducts.clear();
-        addDummyProducts();
-        filterProducts();
-
         db.collection("products")
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Log.e(TAG, "Firestore listen failed.", error);
                         return;
                     }
-
-                    if (value != null && !value.isEmpty()) {
-                        allProducts.clear();
+                    allProducts.clear();
+                    if (value != null) {
                         for (QueryDocumentSnapshot document : value) {
                             Product product = document.toObject(Product.class);
                             product.setId(document.getId());
                             allProducts.add(product);
                         }
-                        filterProducts();
                     }
+                    filterProducts();
                 });
-    }
-
-    private void addDummyProducts() {
-        // Goods
-        allProducts.add(new Product("G1", "Shin Ramyun", "Classic Korean Ramen", 65.0, "", "Goods", "Ramen", true));
-        allProducts.add(new Product("G2", "Buldak Original", "Spicy Chicken Noodles", 85.0, "", "Goods", "Buldak", true));
-        allProducts.add(new Product("G3", "Roasted Seaweed", "Crispy snack", 35.0, "", "Goods", "Seaweed", true));
-        
-        // Meals
-        allProducts.add(new Product("M1", "Beef Bulgogi Rice", "Tender beef meal", 145.0, "", "Meals", "Rice Meals", true));
-        allProducts.add(new Product("M2", "Cheese Ramyun", "Creamy noodles", 95.0, "", "Meals", "Cheese Ramen", true));
-        allProducts.add(new Product("M3", "Kimchi", "Traditional side dish", 25.0, "", "Meals", "Side Dish", true));
-
-        // Beverages
-        allProducts.add(new Product("B1", "Okinawa Milktea", "Brown sugar milktea", 95.0, "", "Beverages", "Milktea", true));
-        allProducts.add(new Product("B2", "Strawberry Soda", "Fizzy berry drink", 65.0, "", "Beverages", "Fruit Soda", true));
-        allProducts.add(new Product("B3", "Korean Coffee", "Iced abrica coffee", 75.0, "", "Beverages", "Korean Abrica", false));
     }
 }

@@ -508,6 +508,10 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(t -> navigateToMain(false, false));
     }
 
+    // Designated seller emails — these are always promoted to isSeller=true on login
+    private static final java.util.Set<String> DESIGNATED_SELLERS = new java.util.HashSet<>(
+            java.util.Arrays.asList("kstoresanzin@gmail.com"));
+
     private void checkRoleAndNavigate(FirebaseUser user) {
         if (user == null) { setLoading(false); return; }
 
@@ -520,7 +524,18 @@ public class LoginActivity extends AppCompatActivity {
                                 "google");
                         return;
                     }
+
                     boolean isSeller = Boolean.TRUE.equals(doc.getBoolean("isSeller"));
+                    String email = user.getEmail() != null ? user.getEmail().toLowerCase() : "";
+
+                    // Auto-promote designated seller emails if not already set
+                    if (!isSeller && DESIGNATED_SELLERS.contains(email)) {
+                        db.collection("users").document(user.getUid())
+                                .update("isSeller", true)
+                                .addOnCompleteListener(t -> navigateToMain(true, false));
+                        return;
+                    }
+
                     navigateToMain(isSeller, false);
                 })
                 .addOnFailureListener(e -> {

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -58,22 +57,8 @@ public class CheckoutFragment extends Fragment {
         });
 
         binding.btnPlaceOrder.setOnClickListener(v -> {
-            int selectedId = binding.rgPaymentMethods.getCheckedRadioButtonId();
-            if (selectedId == -1) {
-                Toast.makeText(getContext(), "Please select a payment method", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String paymentMethod = "";
-            if (selectedId == binding.rbPayOnPickup.getId()) {
-                paymentMethod = "Pay on Pickup";
-            } else if (selectedId == binding.rbGCash.getId()) {
-                paymentMethod = "GCash";
-            } else if (selectedId == binding.rbMaya.getId()) {
-                paymentMethod = "Maya";
-            }
-
-            showConfirmationDialog(paymentMethod);
+            // Only Pay on Pickup is available — always selected by default
+            showConfirmationDialog("Pay on Pickup");
         });
     }
 
@@ -99,17 +84,8 @@ public class CheckoutFragment extends Fragment {
         dialogView.findViewById(R.id.btnYes).setOnClickListener(v -> {
             dialog.dismiss();
             if (getActivity() instanceof MainActivity) {
-                String methodKey = paymentMethod.toUpperCase().replace(" ", "_");
-                ((MainActivity) getActivity()).completeOrder(methodKey);
-
-                // Show success dialog for offline payment
-                if ("Pay on Pickup".equals(paymentMethod)) {
-                    showSuccessDialog();
-                } else {
-                    // For online payment, we are leaving the app anyway, so just pop the stack
-                    // so when they return they are at the dashboard
-                    getActivity().getSupportFragmentManager().popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                }
+                ((MainActivity) getActivity()).completeOrder("PAY_ON_PICKUP");
+                showSuccessDialog();
             }
         });
 

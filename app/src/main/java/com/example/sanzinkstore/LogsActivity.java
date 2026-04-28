@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.sanzinkstore.model.CartItem;
@@ -22,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class LogsActivity extends AppCompatActivity {
+public class LogsActivity extends BaseDrawerActivity {
 
     private static final String TAG = "LogsActivity";
     private RecyclerView rvLogs;
@@ -38,12 +39,13 @@ public class LogsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         rvLogs = findViewById(R.id.rvLogs);
         rvLogs.setLayoutManager(new LinearLayoutManager(this));
-        
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setupDrawer(toolbar, R.id.nav_logs);
+
         adapter = new OrderAdapter(orders);
         rvLogs.setAdapter(adapter);
 
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
-        
         loadLogs();
     }
 
@@ -97,7 +99,20 @@ public class LogsActivity extends AppCompatActivity {
             Order order = orders.get(position);
             holder.tvOrderId.setText("Order Date: " + new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date(order.getTimestamp())));
             holder.tvTimestamp.setText("Time: " + new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date(order.getTimestamp())));
-            
+
+            // Show customer info only for online (non-POS) orders
+            String name  = order.getCustomerName()  != null ? order.getCustomerName().trim()  : "";
+            String email = order.getCustomerEmail() != null ? order.getCustomerEmail().trim() : "";
+            if (!name.isEmpty() || !email.isEmpty()) {
+                String customerDisplay = "Customer: ";
+                if (!name.isEmpty()) customerDisplay += name;
+                if (!email.isEmpty()) customerDisplay += (!name.isEmpty() ? "  •  " : "") + email;
+                holder.tvCustomer.setText(customerDisplay);
+                holder.tvCustomer.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvCustomer.setVisibility(View.GONE);
+            }
+
             StringBuilder itemsStr = new StringBuilder();
             if (order.getItems() != null) {
                 for (CartItem item : order.getItems()) {
@@ -133,15 +148,16 @@ public class LogsActivity extends AppCompatActivity {
         }
 
         static class OrderViewHolder extends RecyclerView.ViewHolder {
-            TextView tvOrderId, tvTimestamp, tvItems, tvTotal, tvStatus;
+            TextView tvOrderId, tvTimestamp, tvCustomer, tvItems, tvTotal, tvStatus;
 
             public OrderViewHolder(@NonNull View itemView) {
                 super(itemView);
-                tvOrderId = itemView.findViewById(R.id.tvOrderId);
+                tvOrderId   = itemView.findViewById(R.id.tvOrderId);
                 tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
-                tvItems = itemView.findViewById(R.id.tvItems);
-                tvTotal = itemView.findViewById(R.id.tvTotal);
-                tvStatus = itemView.findViewById(R.id.tvStatus);
+                tvCustomer  = itemView.findViewById(R.id.tvCustomer);
+                tvItems     = itemView.findViewById(R.id.tvItems);
+                tvTotal     = itemView.findViewById(R.id.tvTotal);
+                tvStatus    = itemView.findViewById(R.id.tvStatus);
             }
         }
     }

@@ -1,51 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Matte Black & Super White Grey Theme (Night Mode) -->
-    <color name="primary">#E0E0E0</color>
-    <color name="on_primary">#121212</color>
-    <color name="primary_container">#333333</color>
-    <color name="on_primary_container">#E0E0E0</color>
+    <!-- ── Night Mode Palette ────────────────────────────────────────── -->
+    <!-- Based on image_1 app screenshot: deep black bg + vivid red accents -->
 
-    <color name="secondary">#BDBDBD</color>
-    <color name="on_secondary">#121212</color>
-    <color name="secondary_container">#424242</color>
-    <color name="on_secondary_container">#E0E0E0</color>
+    <color name="primary">#D32F2F</color>            <!-- Vivid Red -->
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#8B0000</color>  <!-- Deep Red container -->
+    <color name="on_primary_container">#FFCDD2</color>
 
-    <color name="background">#121212</color>
-    <color name="on_background">#E0E0E0</color>
-    <color name="surface">#121212</color>
-    <color name="on_surface">#E0E0E0</color>
-    <color name="surface_variant">#212121</color>
-    <color name="on_surface_variant">#E0E0E0</color>
-    <color name="outline">#E0E0E0</color>
+    <color name="secondary">#FF5252</color>          <!-- Bright Red accent -->
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#5E0006</color><!-- Very dark red -->
+    <color name="on_secondary_container">#FFB3B3</color>
 
-    <color name="error">#CF6679</color>
-    <color name="on_error">#000000</color>
+    <color name="background">#0D0D0D</color>         <!-- Near-black -->
+    <color name="on_background">#FFFFFF</color>
+    <color name="surface">#1A1A1A</color>            <!-- Dark card surface -->
+    <color name="on_surface">#FFFFFF</color>
+    <color name="surface_variant">#2A0A0A</color>    <!-- Dark red-tinted card -->
+    <color name="on_surface_variant">#FFCDD2</color>
+
+    <color name="outline">#8B0000</color>
+    <color name="outline_variant">#5E0006</color>
+
+    <!-- Status Colors -->
+    <color name="error">#FF5252</color>
+    <color name="on_error">#FFFFFF</color>
     <color name="success">#81C784</color>
+    <color name="on_success">#000000</color>
 
-    <!-- Core Colors -->
-    <color name="matte_black">#121212</color>
-    <color name="super_white_grey">#E0E0E0</color>
+    <!-- Category Colors (dark red tones) -->
+    <color name="cat_milktea">#3A0A0A</color>
+    <color name="cat_fruit_soda">#4A0E0E</color>
+    <color name="cat_food">#5C1010</color>
+    <color name="cat_snacks">#6B1212</color>
+    <color name="cat_deals">#8B0000</color>
+    <color name="cat_default">#D32F2F</color>
 
-    <!-- Legacy aliases -->
-    <color name="black">#121212</color>
-    <color name="white">#E0E0E0</color>
-    <color name="neon_pink">#E0E0E0</color>
-    <color name="text_secondary">#BDBDBD</color>
+    <!-- Legacy support -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#0D0D0D</color>
+    <color name="neon_pink">#FF3333</color>          <!-- Neon red accent -->
+    <color name="text_secondary">#FFABAB</color>
+    <color name="matte_black">#0D0D0D</color>
+    <color name="super_white_grey">#2A2A2A</color>
 
-    <!-- Category Colors (Muted Dark Monochrome) -->
-    <color name="cat_milktea">#212121</color>
-    <color name="cat_fruit_soda">#333333</color>
-    <color name="cat_food">#424242</color>
-    <color name="cat_snacks">#484848</color>
-    <color name="cat_deals">#525252</color>
-    <color name="cat_default">#616161</color>
-
-    <!-- Messaging colors (Night mode) -->
-    <color name="msg_sent_bg">#2979FF</color>
+    <!-- Messaging colors -->
+    <color name="msg_sent_bg">#D32F2F</color>
     <color name="msg_sent_text">#FFFFFF</color>
-    <color name="msg_received_bg">#2D2D2D</color>
-    <color name="msg_received_text">#E0E0E0</color>
+    <color name="msg_received_bg">#2A2A2A</color>
+    <color name="msg_received_text">#FFFFFF</color>
     <color name="msg_input_bg">#1E1E1E</color>
-    <color name="msg_time_text">#BDBDBD</color>
+    <color name="msg_time_text">#FFABAB</color>
 </resources>

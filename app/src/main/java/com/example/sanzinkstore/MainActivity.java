@@ -344,14 +344,15 @@ public class MainActivity extends AppCompatActivity {
         MenuItem themeItem = menu.findItem(R.id.action_theme_toggle);
         if (themeItem != null) {
             boolean isDarkMode = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getBoolean(KEY_DARK_MODE, true);
-            themeItem.setIcon(isDarkMode ? R.drawable.ic_sun : R.drawable.ic_moon);
+            // Show sun in day mode, moon in night mode (represents the current mode)
+            themeItem.setIcon(isDarkMode ? R.drawable.ic_moon : R.drawable.ic_sun);
 
-            // Force icon tint to colorOnPrimary so it's always visible on the toolbar
+            // Use colorOnSurface so the icon is always visible regardless of toolbar background
             TypedValue tv = new TypedValue();
-            getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, tv, true);
-            int onPrimaryColor = tv.data;
+            getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnSurface, tv, true);
+            int onSurfaceColor = tv.data;
             if (themeItem.getIcon() != null) {
-                themeItem.getIcon().setTintList(ColorStateList.valueOf(onPrimaryColor));
+                themeItem.getIcon().setTintList(ColorStateList.valueOf(onSurfaceColor));
             }
         }
         return super.onPrepareOptionsMenu(menu);
@@ -504,8 +505,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void processOrder(String paymentMethod, boolean isPaid, String existingOrderId) {
         String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "anonymous";
+
+        // Include customer identity for online orders; leave blank for in-store POS
+        String customerName  = "";
+        String customerEmail = "";
+        if (!isAdmin && auth.getCurrentUser() != null) {
+            customerName  = auth.getCurrentUser().getDisplayName() != null
+                    ? auth.getCurrentUser().getDisplayName() : "";
+            customerEmail = auth.getCurrentUser().getEmail() != null
+                    ? auth.getCurrentUser().getEmail() : "";
+        }
+
         Order order = new Order(
                 userId,
+                customerName,
+                customerEmail,
                 new ArrayList<>(cart),
                 totalAmount,
                 System.currentTimeMillis(),

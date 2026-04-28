@@ -111,11 +111,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     listener.onAvailabilityChanged(product, isChecked);
                 });
                 
-                if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-                    Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.logo2).into(binding.productImage);
-                } else {
-                    binding.productImage.setImageResource(R.drawable.logo2);
-                }
+                loadImage(product.getImageUrl(), binding);
 
                 binding.getRoot().setOnClickListener(v -> {
                     if (product.isAvailable()) {
@@ -134,11 +130,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 binding.productName.setTextColor(textColor);
                 binding.productPrice.setTextColor(priceColor);
 
-                if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-                    Picasso.get().load(product.getImageUrl()).placeholder(R.drawable.logo2).into(binding.productImage);
-                } else {
-                    binding.productImage.setImageResource(R.drawable.logo2);
-                }
+                loadImage(product.getImageUrl(), binding);
                 binding.productImage.setAlpha(1.0f);
 
                 binding.addToCartButton.setVisibility(View.VISIBLE);
@@ -152,6 +144,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                         listener.onProductClick(product);
                     }
                 });
+            }
+        }
+
+        private void loadImage(String imageUrl, ItemProductBinding binding) {
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                Picasso.get()
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_broken_image)
+                        .error(R.drawable.ic_broken_image)
+                        .into(binding.productImage);
+            } else {
+                binding.productImage.setImageResource(R.drawable.ic_broken_image);
             }
         }
 

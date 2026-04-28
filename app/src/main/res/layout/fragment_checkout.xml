@@ -124,25 +124,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:buttonTint="@color/neon_pink"
+                    android:checked="true"
                     android:text="Pay on Pickup"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <RadioButton
-                    android:id="@+id/rbGCash"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:buttonTint="@color/neon_pink"
-                    android:text="GCash"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <RadioButton
-                    android:id="@+id/rbMaya"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:buttonTint="@color/neon_pink"
-                    android:text="Maya"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
             </RadioGroup>

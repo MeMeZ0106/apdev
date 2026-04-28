@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Soft Rose Palette (Light Mode) -->
-    <!-- Based on provided image: #D14D72, #FFABAB, #FCC8D1, #FEF2F4 -->
+    <!-- ── Day Mode Palette ──────────────────────────────────────────── -->
+    <!-- Based on: #5E0006 | #9B0F06 | #E53935 (light red) | #EED9B9    -->
 
-    <color name="primary">#D14D72</color> <!-- Rose -->
+    <color name="primary">#9B0F06</color>           <!-- Dark Red -->
     <color name="on_primary">#FFFFFF</color>
-    <color name="primary_container">#FFABAB</color> <!-- Peach -->
-    <color name="on_primary_container">#D14D72</color>
+    <color name="primary_container">#E53935</color>  <!-- Light Red -->
+    <color name="on_primary_container">#FFFFFF</color>
 
-    <color name="secondary">#FCC8D1</color> <!-- Light Pink -->
-    <color name="on_secondary">#121212</color>
-    <color name="secondary_container">#FEF2F4</color> <!-- Off-white Pink -->
-    <color name="on_secondary_container">#D14D72</color>
+    <color name="secondary">#E53935</color>          <!-- Light Red -->
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#EED9B9</color><!-- Warm Cream -->
+    <color name="on_secondary_container">#5E0006</color>
 
-    <color name="background">#FEF2F4</color> <!-- Off-white Pink -->
-    <color name="on_background">#121212</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="on_surface">#121212</color>
-    <color name="surface_variant">#FCC8D1</color>
-    <color name="on_surface_variant">#D14D72</color>
+    <color name="background">#EED9B9</color>         <!-- Warm Cream -->
+    <color name="on_background">#5E0006</color>      <!-- Dark Maroon -->
+    <color name="surface">#FFF8F0</color>            <!-- Off-white warm -->
+    <color name="on_surface">#5E0006</color>
+    <color name="surface_variant">#F5E0C0</color>    <!-- Darker cream -->
+    <color name="on_surface_variant">#9B0F06</color>
 
-    <color name="outline">#D14D72</color>
-    <color name="outline_variant">#FFABAB</color>
+    <color name="outline">#E53935</color>
+    <color name="outline_variant">#F0C8A0</color>
 
     <!-- Status Colors -->
     <color name="error">#B00020</color>
@@ -29,33 +29,33 @@
     <color name="success">#2E7D32</color>
     <color name="on_success">#FFFFFF</color>
 
-    <!-- Core Palette Aliases -->
-    <color name="rose_primary">#D14D72</color>
-    <color name="peach_accent">#FFABAB</color>
-    <color name="soft_pink">#FCC8D1</color>
-    <color name="mist_white">#FEF2F4</color>
+    <!-- Palette Aliases -->
+    <color name="maroon_deep">#5E0006</color>
+    <color name="red_dark">#9B0F06</color>
+    <color name="red_light">#E53935</color>
+    <color name="cream_warm">#EED9B9</color>
 
-    <!-- Category Muted Palette (Based on Rose Theme) -->
-    <color name="cat_milktea">#FFABAB</color>
-    <color name="cat_fruit_soda">#FCC8D1</color>
-    <color name="cat_food">#FADADD</color>
-    <color name="cat_snacks">#F8C3CD</color>
-    <color name="cat_deals">#E75480</color>
-    <color name="cat_default">#D14D72</color>
+    <!-- Category Colors (red tones — no orange) -->
+    <color name="cat_milktea">#E53935</color>
+    <color name="cat_fruit_soda">#EF5350</color>
+    <color name="cat_food">#C62828</color>
+    <color name="cat_snacks">#B71C1C</color>
+    <color name="cat_deals">#9B0F06</color>
+    <color name="cat_default">#5E0006</color>
 
     <!-- Legacy support -->
     <color name="white">#FFFFFF</color>
-    <color name="black">#121212</color>
-    <color name="neon_pink">#D14D72</color>
-    <color name="text_secondary">#757575</color>
-    <color name="matte_black">#121212</color>
-    <color name="super_white_grey">#E0E0E0</color>
+    <color name="black">#5E0006</color>
+    <color name="neon_pink">#9B0F06</color>          <!-- Main accent: dark red -->
+    <color name="text_secondary">#8B3E38</color>
+    <color name="matte_black">#5E0006</color>
+    <color name="super_white_grey">#F5E0C0</color>
 
-    <!-- Messaging colors (Light mode) -->
-    <color name="msg_sent_bg">#2979FF</color>
+    <!-- Messaging colors -->
+    <color name="msg_sent_bg">#9B0F06</color>
     <color name="msg_sent_text">#FFFFFF</color>
-    <color name="msg_received_bg">#E0E0E0</color>
-    <color name="msg_received_text">#121212</color>
-    <color name="msg_input_bg">#F0F0F0</color>
-    <color name="msg_time_text">#757575</color>
+    <color name="msg_received_bg">#F0D8B0</color>
+    <color name="msg_received_text">#5E0006</color>
+    <color name="msg_input_bg">#F5E8D0</color>
+    <color name="msg_time_text">#8B3E38</color>
 </resources>

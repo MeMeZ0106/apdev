@@ -4,17 +4,23 @@ import java.util.List;
 
 public class Order {
     private String userId;
+    private String customerName;
+    private String customerEmail;
     private List<CartItem> items;
     private double totalAmount;
     private long timestamp;
-    private String status; // e.g., PENDING, COMPLETED, CANCELLED
-    private String paymentMethod; // e.g., PAY_ON_PICKUP, ONLINE_PAYMENT
+    private String status;
+    private String paymentMethod;
     private boolean paid;
 
     public Order() {}
 
-    public Order(String userId, List<CartItem> items, double totalAmount, long timestamp, String status, String paymentMethod, boolean paid) {
+    public Order(String userId, String customerName, String customerEmail,
+                 List<CartItem> items, double totalAmount, long timestamp,
+                 String status, String paymentMethod, boolean paid) {
         this.userId = userId;
+        this.customerName = customerName;
+        this.customerEmail = customerEmail;
         this.items = items;
         this.totalAmount = totalAmount;
         this.timestamp = timestamp;
@@ -25,6 +31,10 @@ public class Order {
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+    public String getCustomerName() { return customerName; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
+    public String getCustomerEmail() { return customerEmail; }
+    public void setCustomerEmail(String customerEmail) { this.customerEmail = customerEmail; }
     public List<CartItem> getItems() { return items; }
     public void setItems(List<CartItem> items) { this.items = items; }
     public double getTotalAmount() { return totalAmount; }

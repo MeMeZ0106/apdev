@@ -2,10 +2,8 @@ package com.example.sanzinkstore;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,7 +23,7 @@ import java.util.List;
  * SellerInboxActivity — Shows all customer conversations to the seller.
  * Displays unread dot, 2-line message preview, and timestamp.
  */
-public class SellerInboxActivity extends AppCompatActivity {
+public class SellerInboxActivity extends BaseDrawerActivity {
 
     private FirebaseFirestore db;
     private List<Conversation> conversationList;
@@ -40,9 +38,8 @@ public class SellerInboxActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setupDrawer(toolbar, R.id.nav_messages);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Customer Messages");
         }
 
@@ -90,19 +87,11 @@ public class SellerInboxActivity extends AppCompatActivity {
     private void openChat(Conversation conv) {
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA_IS_SELLER, true);
+        intent.putExtra(BaseDrawerActivity.EXTRA_IS_ADMIN, true);
         intent.putExtra(ChatActivity.EXTRA_CUSTOMER_ID, conv.getCustomerId());
         intent.putExtra(ChatActivity.EXTRA_CUSTOMER_NAME,
                 conv.getCustomerName() != null ? conv.getCustomerName() : "Customer");
         startActivity(intent);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
 

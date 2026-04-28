@@ -3,7 +3,7 @@ package com.example.sanzinkstore;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,7 +16,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InventoryActivity extends AppCompatActivity {
+public class InventoryActivity extends BaseDrawerActivity {
 
     private RecyclerView rvInventory;
     private ProductAdapter adapter;
@@ -52,7 +52,7 @@ public class InventoryActivity extends AppCompatActivity {
 
             @Override
             public void onAvailabilityChanged(Product product, boolean isAvailable) {
-                if (product.getId() != null && !product.getId().startsWith("G") && !product.getId().startsWith("M") && !product.getId().startsWith("B")) {
+                if (product.getId() != null) {
                     db.collection("products").document(product.getId())
                             .update("available", isAvailable)
                             .addOnSuccessListener(aVoid -> Log.d("Inventory", "Availability updated"))
@@ -62,11 +62,11 @@ public class InventoryActivity extends AppCompatActivity {
         });
         rvInventory.setAdapter(adapter);
 
-        findViewById(R.id.fabAdd).setOnClickListener(v -> {
-            startActivity(new Intent(this, AdminProductActivity.class));
-        });
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setupDrawer(toolbar, R.id.nav_inventory);
 
-        findViewById(R.id.toolbar).setOnClickListener(v -> finish());
+        findViewById(R.id.fabAdd).setOnClickListener(v ->
+                startActivity(new Intent(this, AdminProductActivity.class)));
 
         setupMainTags();
     }
@@ -179,8 +179,6 @@ public class InventoryActivity extends AppCompatActivity {
         db.collection("products")
                 .addSnapshotListener((value, error) -> {
                     allProducts.clear();
-                    addDummyProducts();
-
                     if (error != null) {
                         Log.e("InventoryActivity", "Firestore listen failed.", error);
                     } else if (value != null) {
@@ -192,22 +190,5 @@ public class InventoryActivity extends AppCompatActivity {
                     }
                     filterProducts();
                 });
-    }
-
-    private void addDummyProducts() {
-        // Goods
-        allProducts.add(new Product("G1", "Shin Ramyun", "Classic Korean Ramen", 65.0, "", "Goods", "Ramen", true));
-        allProducts.add(new Product("G2", "Buldak Original", "Spicy Chicken Noodles", 85.0, "", "Goods", "Buldak", true));
-        allProducts.add(new Product("G3", "Roasted Seaweed", "Crispy snack", 35.0, "", "Goods", "Seaweed", true));
-        
-        // Meals
-        allProducts.add(new Product("M1", "Beef Bulgogi Rice", "Tender beef meal", 145.0, "", "Meals", "Rice Meals", true));
-        allProducts.add(new Product("M2", "Cheese Ramyun", "Creamy noodles", 95.0, "", "Meals", "Cheese Ramen", true));
-        allProducts.add(new Product("M3", "Kimchi", "Traditional side dish", 25.0, "", "Meals", "Side Dish", true));
-
-        // Beverages
-        allProducts.add(new Product("B1", "Okinawa Milktea", "Brown sugar milktea", 95.0, "", "Beverages", "Milktea", true));
-        allProducts.add(new Product("B2", "Strawberry Soda", "Fizzy berry drink", 65.0, "", "Beverages", "Fruit Soda", true));
-        allProducts.add(new Product("B3", "Korean Coffee", "Iced abrica coffee", 75.0, "", "Beverages", "Korean Abrica", false));
     }
 }

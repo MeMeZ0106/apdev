@@ -64,6 +64,11 @@ public class AdminProductActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
+        // Back button on toolbar
+        com.google.android.material.appbar.MaterialToolbar toolbar = binding.toolbar;
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
+
         setupCategoryDropdown();
 
         if (getIntent().hasExtra("PRODUCT_ID")) {

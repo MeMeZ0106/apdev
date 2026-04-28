@@ -1,5 +1,7 @@
 package com.example.sanzinkstore.model;
 
+import com.google.firebase.firestore.PropertyName;
+
 public class Product {
     private String id;
     private String name;
@@ -33,7 +35,9 @@ public class Product {
     public void setDescription(String description) { this.description = description; }
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
+    @PropertyName("imgUrl")
     public String getImageUrl() { return imageUrl; }
+    @PropertyName("imgUrl")
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }

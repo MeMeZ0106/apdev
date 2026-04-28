@@ -2,13 +2,10 @@ package com.example.sanzinkstore;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,7 +32,7 @@ import java.util.Map;
  *   EXTRA_CUSTOMER_ID (String)  – the customer's Firebase UID (required for seller)
  *   EXTRA_CUSTOMER_NAME (String)– display name shown in toolbar (required for seller)
  */
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends BaseDrawerActivity {
 
     public static final String EXTRA_IS_SELLER    = "EXTRA_IS_SELLER";
     public static final String EXTRA_CUSTOMER_ID  = "EXTRA_CUSTOMER_ID";
@@ -90,9 +87,8 @@ public class ChatActivity extends AppCompatActivity {
 
         // Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setupDrawer(toolbar, isSeller ? R.id.nav_messages : 0);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(chatTitle);
         }
 
@@ -196,11 +192,5 @@ public class ChatActivity extends AppCompatActivity {
         String field = isSeller ? "unreadBySeller" : "unreadByCustomer";
         db.collection("conversations").document(conversationId)
                 .update(field, 0L);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) { finish(); return true; }
-        return super.onOptionsItemSelected(item);
     }
 }
