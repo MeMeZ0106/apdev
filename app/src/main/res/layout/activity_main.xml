@@ -26,6 +26,7 @@
                 app:navigationIconTint="?attr/colorOnSurface"
                 app:title="SanZin K-Store"
                 app:titleCentered="true"
+                app:subtitleCentered="true"
                 app:titleTextColor="?attr/colorOnSurface" />
 
         </com.google.android.material.appbar.AppBarLayout>

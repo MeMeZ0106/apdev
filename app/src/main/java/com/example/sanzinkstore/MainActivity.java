@@ -258,6 +258,8 @@ public class MainActivity extends AppCompatActivity {
                     logout();
                 } else if (id == R.id.nav_pos) {
                     // Already here
+                } else if (id == R.id.nav_profile) {
+                    startActivity(new Intent(this, ProfileActivity.class));
                 } else if (id == R.id.nav_inventory) {
                     startActivity(new Intent(this, InventoryActivity.class));
                 } else if (id == R.id.nav_logs) {

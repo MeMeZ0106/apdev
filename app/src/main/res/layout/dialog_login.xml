@@ -73,6 +73,18 @@
         app:cornerRadius="12dp"
         app:backgroundTint="?attr/colorPrimary" />
 
+    <!-- Forgot password -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnForgotPassword"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="2dp"
+        android:text="@string/btn_forgot_password"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="13sp" />
+
     <!-- Divider -->
     <TextView
         android:layout_width="wrap_content"

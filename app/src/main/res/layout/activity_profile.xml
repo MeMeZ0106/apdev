@@ -47,6 +47,19 @@
             android:textSize="22sp"
             android:textStyle="bold"/>
 
+        <!-- Role badge: shown only when a role is resolved -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipRole"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Customer"
+            android:textColor="@color/on_primary"
+            android:visibility="gone"
+            app:chipBackgroundColor="@color/neon_pink"
+            app:chipStrokeWidth="0dp"
+            style="@style/Widget.Material3.Chip.Assist" />
+
         <TextView
             android:id="@+id/tvProfileEmail"
             android:layout_width="wrap_content"
@@ -54,6 +67,19 @@
             android:text="guest@example.com"
             android:textColor="@color/white"
             android:textSize="16sp"/>
+
+        <!-- Sign-in provider badge -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipProvider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Email / Password"
+            android:textColor="@color/on_primary"
+            android:visibility="gone"
+            app:chipBackgroundColor="@color/neon_pink"
+            app:chipStrokeWidth="0dp"
+            style="@style/Widget.Material3.Chip.Assist" />
 
         <Button
             android:id="@+id/btnEditProfile"
@@ -63,6 +89,19 @@
             android:text="Edit Profile"
             android:backgroundTint="@color/neon_pink"
             android:textColor="@color/on_primary"/>
+
+        <!-- Only shown for email/password accounts -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnChangePassword"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/btn_change_password"
+            android:visibility="gone"
+            app:strokeColor="@color/neon_pink"
+            app:cornerRadius="12dp"
+            android:textColor="@color/neon_pink" />
 
     </LinearLayout>
 

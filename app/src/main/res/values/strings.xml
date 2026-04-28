@@ -31,9 +31,15 @@
     <!-- Register dialog -->
     <string name="register_dialog_title">Create Account</string>
     <string name="hint_full_name">Full Name</string>
+    <string name="hint_first_name">First Name</string>
+    <string name="hint_last_name">Last Name</string>
     <string name="hint_confirm_password">Confirm Password</string>
+    <string name="hint_current_password">Current Password</string>
+    <string name="hint_new_password">New Password</string>
     <string name="btn_create_account">Create Account</string>
     <string name="btn_register_google">Register with Google</string>
+    <string name="btn_forgot_password">Forgot Password?</string>
+    <string name="btn_change_password">Change Password</string>
 
     <!-- Guest blocked message -->
     <string name="guest_purchase_blocked">You need an account to make purchases.\nPlease Login or Register.</string>
@@ -48,11 +54,11 @@
 
     <!-- About Us -->
     <string name="about_us_title">About Us</string>
-    <string name="about_us_content">Welcome to SanZin K-Store! 🇰🇷\n\nWe are a passionate local store dedicated to bringing you the finest Korean goods, meals, and beverages right to your neighborhood.\n\nFrom authentic ramen and tteokbokki to refreshing milk teas and fruit sodas — everything is prepared with care and quality ingredients.\n\nFounded in 2024, SanZin K-Store strives to make Korean culture accessible and enjoyable for everyone.\n\nThank you for supporting a local business! ❤️\n\nContact us:\nsanzinkstore@gmail.com</string>
+    <string name="about_us_content">Welcome to SanZin K-Store! 🇰🇷\n\nWe are a passionate local store dedicated to bringing you the finest Korean goods, meals, and beverages right to your neighborhood.\n\nFrom authentic ramen and tteokbokki to refreshing milk teas and fruit sodas — everything is prepared with care and quality ingredients.\n\nFounded in 2024, SanZin K-Store strives to make Korean culture accessible and enjoyable for everyone.\n\nThank you for supporting a local business! ❤️\n\nContact us:\nkstoresanzin@gmail.com</string>
 
     <!-- Privacy Policy -->
     <string name="privacy_policy_title">Privacy Policy</string>
-    <string name="privacy_policy_content">Privacy Policy — SanZin K-Store\nLast updated: April 2026\n\n1. Information We Collect\nWe collect your name, email address, and order history when you create an account or place an order.\n\n2. How We Use Your Information\n• To process and fulfill your orders\n• To send order confirmations and updates\n• To improve our products and services\n• To respond to customer support requests\n\n3. Data Storage\nYour data is stored securely using Google Firebase services. We do not sell or share your personal information with third parties.\n\n4. Passwords\nPasswords are hashed using SHA-256 before transmission and are never stored in plain text.\n\n5. Your Rights\nYou may request deletion of your account and associated data at any time by contacting us at sanzinkstore@gmail.com.\n\n6. Changes to This Policy\nWe may update this policy periodically. Continued use of the app constitutes acceptance of the updated policy.\n\nFor questions, contact: sanzinkstore@gmail.com</string>
+    <string name="privacy_policy_content">Privacy Policy — SanZin K-Store\nLast updated: April 2026\n\n1. Information We Collect\nWe collect your name, email address, and order history when you create an account or place an order.\n\n2. How We Use Your Information\n• To process and fulfill your orders\n• To send order confirmations and updates\n• To improve our products and services\n• To respond to customer support requests\n\n3. Data Storage\nYour data is stored securely using Google Firebase services. We do not sell or share your personal information with third parties.\n\n4. Your Rights\nYou may request deletion of your account and associated data at any time by contacting us at kstoresanzin@gmail.com.\n\n5. Changes to This Policy\nWe may update this policy periodically. Continued use of the app constitutes acceptance of the updated policy.\n\nFor questions, contact: kstoresanzin@gmail.com</string>
 
     <!-- Inventory -->
     <string name="inventory_title">Store Inventory</string>
